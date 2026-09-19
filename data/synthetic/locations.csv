@@ -1,0 +1,9 @@
+location_id,location_name,city,latitude,longitude,location_type
+LOC0001,Ahmedabad_Zone_1,Ahmedabad,23.0225,72.5714,market
+LOC0002,Ahmedabad_Zone_5,Ahmedabad,23.0395,72.566,warehouse
+LOC0003,Ahmedabad_Zone_9,Ahmedabad,22.995,72.6,highway
+LOC0004,Gandhinagar_Zone_2,Gandhinagar,23.2156,72.6369,office
+LOC0005,Surat_Zone_3,Surat,21.1702,72.8311,bank
+LOC0006,Surat_Zone_7,Surat,21.2,72.84,hotel
+LOC0007,Vadodara_Zone_4,Vadodara,22.3072,73.1812,restaurant
+LOC0008,Vadodara_Zone_6,Vadodara,22.32,73.17,residential

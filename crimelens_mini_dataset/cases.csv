@@ -1,0 +1,13 @@
+case_id,case_type,incident_date,primary_location_id,status
+CASE0001,extortion,2026-08-20,LOC0002,under_investigation
+CASE0002,vehicle_theft,2026-07-04,LOC0007,under_investigation
+CASE0003,burglary,2026-06-18,LOC0002,closed
+CASE0004,cybercrime,2026-07-28,LOC0004,open
+CASE0005,fraud,2026-08-05,LOC0005,open
+CASE0006,robbery,2026-08-25,LOC0003,open
+CASE0101,extortion,2021-03-14,LOC0001,closed
+CASE0102,fraud,2022-07-09,LOC0004,closed
+CASE0103,vehicle_theft,2020-11-02,LOC0007,closed
+CASE0104,burglary,2023-05-21,LOC0002,closed
+CASE0105,robbery,2019-09-17,LOC0005,closed
+CASE0106,cybercrime,2024-02-11,LOC0003,closed

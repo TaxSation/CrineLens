@@ -1,0 +1,21 @@
+person_id,name,age,gender,home_location_id,occupation
+P0001,Kiran Desai,41,M,LOC0001,business
+P0002,Meera Patel,34,F,LOC0002,consultant
+P0003,Rahul Mehta,38,M,LOC0001,trader
+P0004,Anil Trivedi,47,M,LOC0004,self_employed
+P0005,Nisha Shah,36,F,LOC0002,consultant
+P0006,Vijay Solanki,52,M,LOC0005,business
+P0007,Pooja Joshi,29,F,LOC0003,employee
+P0008,Harsh Vyas,33,M,LOC0001,driver
+P0009,Imran Qureshi,44,M,LOC0007,business
+P0010,Sunita Rathod,39,F,LOC0008,trader
+P0011,Deepak Chauhan,50,M,LOC0007,self_employed
+P0012,Farida Sheikh,31,F,LOC0006,employee
+P0013,Manoj Parmar,45,M,LOC0008,driver
+P0014,Latika Nair,27,F,LOC0006,student
+P0015,Sanjay Bhatt,55,M,LOC0004,consultant
+P0016,Anjali Kulkarni,30,F,LOC0005,employee
+P0017,Tarun Sharma,23,M,LOC0003,student
+P0018,Bhavna Modi,42,F,LOC0002,self_employed
+P0019,Yash Kothari,36,M,LOC0006,unknown
+P0020,R. Mehta,38,M,LOC0001,trader

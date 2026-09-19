@@ -1,0 +1,11 @@
+intelligence_report_id,case_id,report_date,source_classification,report_text,confidence
+INTEL00001,CASE0001,2026-08-22,analyst,"Analyst notes a sharp rise in calls between Kiran Desai, Meera Patel, Anil Trivedi and Vijay Solanki in the two days before the incident.",high
+INTEL00002,CASE0001,2026-08-22,field_source,Field source states that Nisha Shah acts as a go-between for Kiran Desai and Imran Qureshi.,medium
+INTEL00003,CASE0001,2026-08-23,field_source,Field source links vehicle SYN-GJ-1006 to Farida Sheikh.,medium
+INTEL00004,CASE0001,2026-08-24,analyst,Analyst notes unusual transfer activity on 19 August involving several accounts linked to Kiran Desai.,high
+INTEL00005,CASE0001,2026-08-24,internal,Unverified tip suggests Pooja Joshi and Farida Sheikh know each other.,low
+INTEL00006,CASE0002,2026-07-06,field_source,Source reports that the stolen car was seen heading towards Surat.,medium
+INTEL00007,CASE0003,2026-06-20,internal,Possible involvement of a driver known to Harsh Vyas.,low
+INTEL00008,CASE0004,2026-07-30,analyst,The account of Sanjay Bhatt received funds from several unrelated senders within one week.,medium
+INTEL00009,CASE0005,2026-08-08,analyst,Anjali Kulkarni appears in more than one case this month.,medium
+INTEL00010,CASE0006,2026-08-26,field_source,Source confirms a car matching SYN-GJ-1002 was used near Ahmedabad_Zone_9 on the night of 25 August.,high

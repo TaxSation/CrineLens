@@ -1,0 +1,8 @@
+membership_id,organization_id,person_id,role
+M001,O001,P0001,owner
+M002,O001,P0003,employee
+M003,O001,P0020,employee
+M004,O002,P0004,director
+M005,O002,P0015,employee
+M006,O003,P0009,owner
+M007,O003,P0011,employee

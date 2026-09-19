@@ -1,0 +1,11 @@
+fir_id,case_id,report_time,police_station,report_text,source_type,language
+FIR00001,CASE0001,2026-08-21 09:40:00,PS_05,"Complainant Bhavna Modi reported that on the evening of 20 August two men in a white SUV, registration SYN-GJ-1004, arrived at her shop near Ahmedabad_Zone_5 and demanded Rs 90,000. She named one of the men as Anil Trivedi and said he had called her from 9000010004 earlier that week.",synthetic_fir,en
+FIR00002,CASE0001,2026-08-21 14:10:00,PS_05,"Witness reported that Vijay Solanki was seen near Surat_Zone_3 at about 9:30 pm on 19 August, the day before the incident.",synthetic_fir,en
+FIR00003,CASE0001,2026-08-22 11:00:00,PS_05,Investigation notes mention that Kiran Desai met Imran Qureshi near Ahmedabad_Zone_9 on the night of 17 August. A vehicle with registration SYN-GJ-1003 was also noted.,synthetic_fir,en
+FIR00004,CASE0001,2026-08-23 10:15:00,PS_05,"A transaction of Rs 95,000 from the account of Kiran Desai to Anil Trivedi on 19 August was identified during the preliminary investigation.",synthetic_fir,en
+FIR00005,CASE0001,2026-08-23 16:45:00,PS_05,जांच में सामने आया कि आर. मेहता ने 19 अगस्त को अनिल त्रिवेदी से फोन पर बात की थी।,synthetic_fir,hi
+FIR00006,CASE0002,2026-07-05 08:30:00,PS_12,"Deepak Chauhan reported that his car, registration SYN-GJ-1005, was stolen from Vadodara_Zone_4 overnight. Neighbours noticed Farida Sheikh near the parking area.",synthetic_fir,en
+FIR00007,CASE0003,2026-06-18 21:30:00,PS_05,Burglary reported at a shop in Ahmedabad_Zone_5. The watchman recalled seeing Harsh Vyas driving a van earlier in the evening.,synthetic_fir,en
+FIR00008,CASE0004,2026-07-29 10:05:00,PS_08,"Complainant Pooja Joshi lost Rs 48,000 in an online payment fraud. The funds were traced to an account held by Sanjay Bhatt.",synthetic_fir,en
+FIR00009,CASE0005,2026-08-06 12:20:00,PS_03,"Tarun Sharma filed a complaint against Anjali Kulkarni over a fake invoice for Rs 15,500. Payment was made to her account on 4 August.",synthetic_fir,en
+FIR00010,CASE0006,2026-08-25 23:10:00,PS_07,"Robbery reported on the Ahmedabad_Zone_9 highway. A witness noted the attackers' car, registration SYN-GJ-1002.",synthetic_fir,en

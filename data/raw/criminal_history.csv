@@ -1,0 +1,10 @@
+history_id,person_id,case_id,crime_type,year,outcome
+HIST00001,P0001,CASE0101,extortion,2021,convicted
+HIST00002,P0004,CASE0101,extortion,2021,convicted
+HIST00003,P0004,CASE0102,fraud,2022,acquitted
+HIST00004,P0006,CASE0102,fraud,2022,convicted
+HIST00005,P0009,CASE0103,vehicle_theft,2020,convicted
+HIST00006,P0011,CASE0103,vehicle_theft,2020,convicted
+HIST00007,P0008,CASE0104,burglary,2023,acquitted
+HIST00008,P0013,CASE0105,robbery,2019,convicted
+HIST00009,P0015,CASE0106,cybercrime,2024,pending

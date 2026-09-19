@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CrimeLens — Multi-Source Intelligence & Graph Analytics Platform (SIH 26189)</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Offline Cytoscape.js -->
+  <script src="vendor/cytoscape.min.js"></script>
+</head>
+<body>
+
+  <!-- Top Intelligence Workstation Header -->
+  <header class="app-header">
+    <div class="brand-section">
+      <div class="brand-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <circle cx="12" cy="12" r="4"></circle>
+          <line x1="12" y1="2" x2="12" y2="4"></line>
+          <line x1="12" y1="20" x2="12" y2="22"></line>
+          <line x1="2" y1="12" x2="4" y2="12"></line>
+          <line x1="20" y1="12" x2="22" y2="12"></line>
+        </svg>
+      </div>
+      <div class="brand-titles">
+        <h1>CrimeLens</h1>
+        <div class="tagline">SIH 2026 // PS-26189 // CYBER TITANS</div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button class="nav-tab-btn active" data-view="command-center-view">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        Command Center
+      </button>
+      <button class="nav-tab-btn" data-view="network-explorer-view">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+        Network Explorer
+      </button>
+      <button class="nav-tab-btn" data-view="timeline-view">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        Timeline & Delta
+      </button>
+      <button class="nav-tab-btn" data-view="anomalies-view">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 22 22 22"></polygon><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        Anomalies & Conflicts
+      </button>
+      <button class="nav-tab-btn" data-view="report-view">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        Intelligence Brief
+      </button>
+    </nav>
+
+    <!-- Case Status & Active Investigation Selector -->
+    <div class="header-meta">
+      <div class="case-switcher-box">
+        <span class="case-switcher-icon">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </span>
+        <label for="case-switcher-select" class="case-switcher-label">CASE:</label>
+        <select id="case-switcher-select" class="case-switcher-dropdown" aria-label="Select Investigation Case">
+          <option value="CASE0001">CASE0001: Extortion (Ahmedabad_Zone_5)</option>
+        </select>
+        <div class="status-dot active" title="Active Investigation Context"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workstation Canvas -->
+  <main class="app-content">
+
+    <!-- ==================== 1. COMMAND CENTER ==================== -->
+    <section id="command-center-view" class="view-panel active">
+      <div class="command-center">
+
+        <!-- Case Hero Banner -->
+        <div class="case-hero-banner">
+          <div>
+            <div id="hero-title" class="case-hero-title">EXTORTION: SYNDICATE EXPLOITATION</div>
+            <div class="case-hero-meta">
+              <span>CASE: <strong id="hero-case-id">CASE0001</strong></span>
+              <span>LOCATION: <strong id="hero-location">Ahmedabad_Zone_5</strong></span>
+              <span>INCIDENT DATE: <strong id="hero-date">2026-08-20</strong></span>
+              <span>STATUS: <strong id="hero-status" style="color: var(--gold-primary);">UNDER INVESTIGATION</strong></span>
+            </div>
+          </div>
+          <div>
+            <button class="btn-inspect" style="padding: 8px 16px; font-weight: 600;" onclick="switchView('network-explorer-view')">
+              Open Graph Canvas →
+            </button>
+          </div>
+        </div>
+
+        <!-- KPI Metrics Strip -->
+        <div class="metrics-strip">
+          <div class="metric-card">
+            <div class="metric-label">Identified Entities</div>
+            <div id="stat-entities" class="metric-value">96</div>
+            <div class="metric-sub">Persons, phones, accounts, vehicles</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Logged Relationships</div>
+            <div id="stat-relations" class="metric-value">364</div>
+            <div class="metric-sub">Verified multi-channel edges</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Evidence Records</div>
+            <div id="stat-evidence" class="metric-value">329</div>
+            <div class="metric-sub">CDR, txns, CCTV, FIRs, OSINT</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Detected Clusters</div>
+            <div id="stat-communities" class="metric-value">2</div>
+            <div class="metric-sub">Louvain modularity partition</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Active Anomalies</div>
+            <div id="stat-anomalies" class="metric-value" style="color: var(--rust-primary);">4</div>
+            <div class="metric-sub">Spikes, nocturnal txns, smurfing</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Priority Leads</div>
+            <div id="stat-leads" class="metric-value" style="color: var(--gold-primary);">5</div>
+            <div class="metric-sub">High investigation priority</div>
+          </div>
+        </div>
+
+        <!-- Split Dashboard: Priority Leads (Left, Primary) & Investigation Signals (Right) -->
+        <div class="dashboard-split">
+          <!-- Left: Priority Leads Table (Primary Investigation Action) -->
+          <div class="section-box priority-leads-box">
+            <div class="section-header">
+              <div class="section-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                High Investigation Priority Leads
+              </div>
+              <span class="badge badge-rec">RECOMMENDED ACTION</span>
+            </div>
+            <table class="leads-table">
+              <thead>
+                <tr>
+                  <th style="width: 50px;">Rank</th>
+                  <th style="width: 170px;">Entity</th>
+                  <th style="width: 90px;">Priority</th>
+                  <th>Investigation Rationale</th>
+                  <th style="width: 80px; text-align: center;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="priority-leads-tbody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Right: Key Analytical Signals (Corroborating Evidence) -->
+          <div class="section-box signals-box">
+            <div class="section-header">
+              <div class="section-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="12 8 8 12 12 16 12 8"></polygon></svg>
+                Active Investigation Signals
+              </div>
+              <span class="badge badge-inference">ANALYTICAL INFERENCES</span>
+            </div>
+            <div id="signals-list" class="signals-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== 2. NETWORK EXPLORER ==================== -->
+    <section id="network-explorer-view" class="view-panel">
+      <div class="network-explorer">
+
+        <!-- Left Controls Sidebar -->
+        <aside class="graph-sidebar">
+          <div class="sidebar-block">
+            <div class="sidebar-title">Graph Entity Filters</div>
+            <div class="control-group">
+              <label class="control-label">Entity Type</label>
+              <select id="filter-entity-type" class="form-select">
+                <option value="ALL">All Types (96 Nodes)</option>
+                <option value="person">Persons Only (20)</option>
+                <option value="phone">Phones (24)</option>
+                <option value="vehicle">Vehicles (8)</option>
+                <option value="account">Bank Accounts (21)</option>
+                <option value="location">Locations (8)</option>
+                <option value="organization">Organizations (3)</option>
+                <option value="case">Cases (12)</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label class="control-label">Community Partition</label>
+              <select id="filter-community" class="form-select">
+                <option value="ALL">All Communities</option>
+                <option value="1">Network A (Ahmedabad Core)</option>
+                <option value="2">Network B (Surat / Vadodara)</option>
+              </select>
+            </div>
+
+            <div class="toggle-row">
+              <span class="control-label">Bridge Connectors Only</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="toggle-bridge-only">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="sidebar-block">
+            <div class="sidebar-title">Entity Search & Focus</div>
+            <input type="text" id="graph-search" class="form-input" placeholder="Search person, phone, vehicle, id...">
+          </div>
+
+          <div class="sidebar-block">
+            <div class="sidebar-title">Path & Connectivity Explorer</div>
+            <div class="control-group">
+              <label class="control-label">Analysis Mode</label>
+              <select id="path-mode" class="form-select">
+                <option value="shortest">Shortest Path (A* Algorithm)</option>
+                <option value="all_paths">All Connecting Paths (Up to 3 Hops)</option>
+                <option value="common_neighbors">Shared Mutual Links (Common Neighbors)</option>
+                <option value="max_hops">Max Hops Reachability Radius</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label class="control-label">Source Node</label>
+              <select id="path-source" class="form-select"></select>
+            </div>
+            <div class="control-group">
+              <label class="control-label">Target Node</label>
+              <select id="path-target" class="form-select"></select>
+            </div>
+            <div class="control-group" id="max-hops-group" style="display: none;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label class="control-label">Max Hops Limit: <strong id="max-hops-val" style="color: var(--gold-primary);">3</strong></label>
+              </div>
+              <input type="range" id="path-max-hops" min="1" max="5" value="3" style="width: 100%; accent-color: var(--gold-primary);">
+            </div>
+            <div style="display: flex; gap: 6px; margin-top: 6px;">
+              <button id="btn-find-path" class="btn-inspect" style="flex: 1;">
+                Trace Route
+              </button>
+              <button id="btn-clear-path" class="tool-btn" style="padding: 6px 10px;" title="Clear Path Highlights">
+                Reset
+              </button>
+            </div>
+            <div id="path-result-msg" style="font-size: 11px; color: var(--gold-primary); margin-top: 8px; font-family: var(--font-mono); line-height: 1.4;"></div>
+          </div>
+        </aside>
+
+        <!-- Main Cytoscape Canvas Container -->
+        <div class="graph-canvas-container">
+          
+          <!-- Top Graph Legend & Layout Controls Bar (Placed directly above graph) -->
+          <div class="graph-top-bar">
+            <!-- Clear Visual Node Legends with Interactive Glow & Hover Info -->
+            <div class="graph-legend-strip">
+              <span class="legend-strip-title">LEGEND:</span>
+              <div class="legend-chip" data-type="person" data-comm="1" title="Community A (Ahmedabad Syndicate Core) — Hover to isolate">
+                <span class="legend-symbol symbol-circle gold"></span>
+                <span>Net A (Persons)</span>
+              </div>
+              <div class="legend-chip" data-type="person" data-comm="2" title="Community B (Surat & Vadodara Syndicate) — Hover to isolate">
+                <span class="legend-symbol symbol-circle moss"></span>
+                <span>Net B (Persons)</span>
+              </div>
+              <div class="legend-chip" data-type="bridge" title="Key Structural Bridge Conduit (P0005 Nisha Shah) — Inter-gang link">
+                <span class="legend-symbol symbol-bridge"></span>
+                <span>Bridge Conduit</span>
+              </div>
+              <div class="legend-chip" data-type="phone" title="Telecommunication Devices (CDRs & IMSI) — Hover to isolate">
+                <span class="legend-symbol symbol-rect phone"></span>
+                <span>Phones</span>
+              </div>
+              <div class="legend-chip" data-type="vehicle" title="Registered Transport Vehicles (ANPR Sightings) — Hover to isolate">
+                <span class="legend-symbol symbol-diamond vehicle"></span>
+                <span>Vehicles</span>
+              </div>
+              <div class="legend-chip" data-type="account" title="Financial Bank Accounts (Layering Chains) — Hover to isolate">
+                <span class="legend-symbol symbol-tag account"></span>
+                <span>Accounts</span>
+              </div>
+              <div class="legend-chip" data-type="location" title="Incident & Tower Locations (Geographic Hotspots) — Hover to isolate">
+                <span class="legend-symbol symbol-hex location"></span>
+                <span>Locations</span>
+              </div>
+              <div class="legend-chip" data-type="case" title="Active & Historical Cases (Multi-case links) — Hover to isolate">
+                <span class="legend-symbol symbol-star case"></span>
+                <span>Cases</span>
+              </div>
+              <div class="legend-chip" data-type="priority-high" title="High Investigation Priority Leads (Key Targets) — Hover to isolate">
+                <span class="legend-symbol symbol-priority-high"></span>
+                <span>High Priority</span>
+              </div>
+            </div>
+
+            <!-- Graph Layout & Zoom Controls -->
+            <div class="graph-toolbar-group">
+              <button id="btn-layout-cose" class="tool-btn" title="Force Directed Spring Layout">Force Layout</button>
+              <button id="btn-layout-circle" class="tool-btn" title="Concentric Rings Layout">Concentric</button>
+              <div class="zoom-stepper-group">
+                <button id="btn-zoom-out" class="tool-btn" title="Zoom Out (−)">−</button>
+                <span id="graph-zoom-label" class="zoom-indicator">100%</span>
+                <button id="btn-zoom-in" class="tool-btn" title="Zoom In (+)">+</button>
+              </div>
+              <button id="btn-fit-graph" class="tool-btn" title="Reset View & Fit to Screen">⛶ Fit View</button>
+            </div>
+          </div>
+
+          <!-- Cytoscape Graph Canvas -->
+          <div id="cy"></div>
+
+          <!-- Floating Edge Provenance Tooltip -->
+          <div id="graph-edge-tooltip" class="graph-edge-tooltip" style="display: none;"></div>
+        </div>
+
+        <!-- Slide-Out Entity Dossier Drawer -->
+        <div id="entity-dossier-drawer" class="entity-dossier-drawer">
+          <div class="drawer-header">
+            <div class="drawer-title">Entity Dossier & Provenance</div>
+            <button class="btn-close" onclick="closeEntityDossier()">✕</button>
+          </div>
+          <div class="drawer-body">
+
+            <!-- Profile Summary Card -->
+            <div class="dossier-profile-card">
+              <div id="dossier-name" class="dossier-name">Name</div>
+              <div class="dossier-meta">
+                ID: <strong id="dossier-id">ID</strong> | TYPE: <strong id="dossier-type">TYPE</strong>
+              </div>
+              <div id="dossier-alias-box" style="margin-top: 10px; display: none;"></div>
+            </div>
+
+            <!-- Priority Card -->
+            <div id="dossier-priority-card" class="priority-banner-card low"></div>
+
+            <!-- Graph Centrality Metrics -->
+            <div class="section-box" style="padding: 12px 14px;">
+              <div class="section-title" style="font-size: 12px; margin-bottom: 8px;">Network Intelligence Metrics</div>
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; font-family: var(--font-mono); font-size: 11px;">
+                <div>Degree: <strong id="dossier-degree">0</strong></div>
+                <div>Betweenness: <strong id="dossier-betweenness">0.00</strong></div>
+                <div>PageRank: <strong id="dossier-pagerank">0.00</strong></div>
+                <div>Community: <strong id="dossier-community">-</strong></div>
+                <div style="grid-column: span 2;">Bridge Node: <strong id="dossier-bridge">No</strong></div>
+              </div>
+            </div>
+
+            <!-- Contradictions Alert Box -->
+            <div id="dossier-conflicts-box" style="display: none;"></div>
+
+            <!-- Provenance Evidence Dossier -->
+            <div>
+              <div class="sidebar-title">Grounded Evidence Trail (FACT)</div>
+              <div id="dossier-evidence-list">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== 3. TIMELINE & DELTA ==================== -->
+    <section id="timeline-view" class="view-panel">
+      <div class="timeline-container">
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <div>
+            <h2 style="font-size: 18px; font-weight: 700;">Chronological Event Reconstruction</h2>
+            <div style="color: var(--text-secondary); font-size: 12.5px;">
+              Cross-source timeline tracking communications, financial transactions, surveillance sightings, and incident milestones.
+            </div>
+          </div>
+          <span id="timeline-count" class="badge badge-fact" style="font-size: 11px;">0 events logged</span>
+        </div>
+
+        <!-- Filter Chips -->
+        <div class="timeline-filter-strip">
+          <button class="filter-chip active" onclick="setTimelineFilter('CASE_RELEVANT', this)">★ Case Suspects (Targeted)</button>
+          <button class="filter-chip" onclick="setTimelineFilter('SPIKE', this)">Pre-Incident Surge (48h Window)</button>
+          <button class="filter-chip" onclick="setTimelineFilter('CRITICAL', this)">Critical Anomalies Only</button>
+          <button class="filter-chip" onclick="setTimelineFilter('FINANCE', this)">Money Trails & Layering</button>
+          <button class="filter-chip" onclick="setTimelineFilter('TELECOM', this)">Telecom & Surveillance</button>
+          <button class="filter-chip" onclick="setTimelineFilter('ALL', this)">All Raw Records (Audit)</button>
+        </div>
+
+        <!-- Timeline Feed -->
+        <div id="timeline-feed" class="timeline-feed">
+          <!-- Dynamically populated -->
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== 4. ANOMALIES & CONFLICTS ==================== -->
+    <section id="anomalies-view" class="view-panel">
+      <div class="anomalies-view">
+
+        <!-- Anomalies Section -->
+        <div>
+          <div class="section-header" style="margin-bottom: 16px;">
+            <div class="section-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              Detected Anomalies & Spikes (Isolation Forest & Statistical Baselines)
+            </div>
+            <span id="anomalies-header-count" class="badge badge-hero-anomaly"><span class="pulse-indicator"></span> 4 CRITICAL SIGNALS FLAGGED</span>
+          </div>
+          <div id="anomalies-list-container" style="display: flex; flex-direction: column; gap: 16px;">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Unresolved Conflicts Section -->
+        <div>
+          <div class="section-header" style="margin-bottom: 16px;">
+            <div class="section-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              Unresolved Contradictions (Preserving Competing Claims)
+            </div>
+            <span id="conflicts-header-count" class="badge badge-hero-conflict">⚠️ 2 CONFLICTS FLAGGED</span>
+          </div>
+          <div id="conflicts-list-container" style="display: flex; flex-direction: column; gap: 16px;">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Discovered Hidden Links Section -->
+        <div>
+          <div class="section-header" style="margin-bottom: 16px;">
+            <div class="section-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"></circle><circle cx="18" cy="18" r="3"></circle><line x1="8.5" y1="8.5" x2="15.5" y2="15.5" stroke-dasharray="3,3"></line></svg>
+              Discovered Hidden Links (Multi-Signal Graph Inference)
+            </div>
+            <span class="badge badge-hero-inference">🔍 1 INFERRED CANDIDATE</span>
+          </div>
+          <div id="hidden-links-list-container" style="display: flex; flex-direction: column; gap: 16px;">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== 5. INTELLIGENCE BRIEF ==================== -->
+    <section id="report-view" class="view-panel">
+      <div class="report-view">
+        <div class="report-paper">
+
+          <div class="report-header-banner">
+            <div>
+              <div class="report-classification">RESTRICTED // LAW ENFORCEMENT INTERNAL</div>
+              <div id="report-headline" class="report-headline">INTELLIGENCE BRIEFING: CASE0001</div>
+              <div id="report-gen-time" style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+                DATE: 2026-08-25
+              </div>
+            </div>
+            <button class="btn-print" onclick="printIntelligenceBrief()">Print / Export Brief</button>
+          </div>
+
+          <!-- Section: Executive Summary -->
+          <div class="report-section">
+            <div class="report-section-title">
+              <span>Executive Case Summary</span>
+              <span class="badge badge-fact">FACT</span>
+            </div>
+            <p id="report-exec-summary" class="report-paragraph"></p>
+          </div>
+
+          <!-- Section: Key Entities -->
+          <div class="report-section">
+            <div class="report-section-title">
+              <span>Key Identified Targets & Network Positions</span>
+              <span class="badge badge-inference">INFERENCE</span>
+            </div>
+            <table class="leads-table" style="margin-top: 8px;">
+              <thead>
+                <tr>
+                  <th>Entity</th>
+                  <th>Priority</th>
+                  <th>Investigative Rationale</th>
+                </tr>
+              </thead>
+              <tbody id="report-entities-tbody"></tbody>
+            </table>
+          </div>
+
+          <!-- Section: Structural Graph Analysis -->
+          <div class="report-section">
+            <div class="report-section-title">
+              <span>Syndicate Structural Topology & Bridge Conduit</span>
+              <span class="badge badge-inference">INFERENCE</span>
+            </div>
+            <p id="report-bridge-analysis" class="report-paragraph"></p>
+          </div>
+
+          <!-- Section: Actionable Recommendations -->
+          <div class="report-section">
+            <div class="report-section-title">
+              <span>Actionable Next Steps</span>
+              <span class="badge badge-rec">RECOMMENDATION</span>
+            </div>
+            <ul id="report-rec-list" style="list-style: none; padding: 0;"></ul>
+          </div>
+
+          <!-- Formal Evidentiary Print Footer -->
+          <div class="print-legal-footer">
+            <span>CRIMELENS PLATFORM // SIH 2026 PS-26189 — EVIDENTIARY INTELLIGENCE DOSSIER</span>
+            <span>RESTRICTED LAW ENFORCEMENT INTERNAL USE ONLY</span>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="app.js?v=4"></script>
+</body>
+</html>

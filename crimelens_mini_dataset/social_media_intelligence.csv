@@ -1,0 +1,27 @@
+post_id,person_id,timestamp,platform,text,location_id,sentiment
+POST000001,P0001,2026-06-05 19:10:00,synthetic_social_A,Long day at the office. Heading home.,LOC0001,neutral
+POST000002,P0002,2026-06-12 12:30:00,synthetic_social_B,Lunch with the team near Ahmedabad_Zone_5.,LOC0002,positive
+POST000003,P0009,2026-06-20 18:45:00,synthetic_social_A,New shipment arrived at the warehouse today.,LOC0007,positive
+POST000004,P0010,2026-06-28 09:15:00,synthetic_social_B,Market is slow this week.,LOC0008,negative
+POST000005,P0004,2026-07-03 21:20:00,synthetic_social_A,Need to speak with Kiran tomorrow.,LOC0004,neutral
+POST000006,P0011,2026-07-08 16:00:00,synthetic_social_B,Someone took my car from the parking. Not happy.,LOC0007,negative
+POST000007,P0014,2026-07-12 20:30:00,synthetic_social_A,Weekend trip to Surat with friends!,LOC0006,positive
+POST000008,P0017,2026-07-15 11:45:00,synthetic_social_B,"Exams over, finally.",LOC0003,positive
+POST000009,P0006,2026-07-19 22:05:00,synthetic_social_A,Business is picking up.,LOC0005,positive
+POST000010,P0012,2026-07-23 14:10:00,synthetic_social_B,Anyone available around Surat_Zone_7 this weekend?,LOC0006,neutral
+POST000011,P0015,2026-07-27 08:50:00,synthetic_social_A,"Payment received, thanks.",LOC0004,positive
+POST000012,P0007,2026-08-02 13:25:00,synthetic_social_B,Visiting a friend in Surat soon.,LOC0003,neutral
+POST000013,P0016,2026-08-04 17:40:00,synthetic_social_A,Invoice sent. Waiting for payment.,LOC0005,neutral
+POST000014,P0019,2026-08-10 09:30:00,synthetic_social_B,Heading to Surat_Zone_7 for the day.,LOC0006,neutral
+POST000015,P0013,2026-08-14 12:00:00,synthetic_social_A,Busy morning running errands.,LOC0008,neutral
+POST000016,P0001,2026-08-14 21:15:00,synthetic_social_A,New contact made. Good things ahead.,LOC0001,positive
+POST000017,P0009,2026-08-14 22:30:00,synthetic_social_B,Met someone interesting today.,LOC0007,positive
+POST000018,P0001,2026-08-17 18:30:00,synthetic_social_A,Meeting near Ahmedabad_Zone_9 tonight.,LOC0003,neutral
+POST000019,P0009,2026-08-17 19:05:00,synthetic_social_B,On my way to Ahmedabad.,LOC0007,neutral
+POST000020,P0005,2026-08-17 21:40:00,synthetic_social_B,Busy night ahead.,LOC0002,neutral
+POST000021,P0020,2026-08-18 20:00:00,synthetic_social_A,Working late at BlueStar_01.,LOC0001,neutral
+POST000022,P0002,2026-08-18 23:10:00,synthetic_social_A,"Cannot sleep, too much going on.",LOC0002,negative
+POST000023,P0006,2026-08-19 21:35:00,synthetic_social_A,Dinner in Ahmedabad with old friends.,LOC0001,positive
+POST000024,P0004,2026-08-19 20:05:00,synthetic_social_A,Everything is set for tomorrow.,LOC0004,neutral
+POST000025,P0018,2026-08-20 22:40:00,synthetic_social_B,Scared after what happened at my shop today.,LOC0002,negative
+POST000026,P0010,2026-08-21 10:20:00,synthetic_social_B,Some people are asking questions. Staying quiet.,LOC0008,negative
