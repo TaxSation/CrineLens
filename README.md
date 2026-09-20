@@ -25,8 +25,7 @@
 10. [Prerequisites & Quickstart](#10-prerequisites--quickstart)
 11. [REST API Documentation](#11-rest-api-documentation)
 12. [Automated Verification & Smoke Test Suite](#12-automated-verification--smoke-test-suite)
-13. [Hackathon Demo & Presentation Script (5 Minutes)](#13-hackathon-demo--presentation-script-5-minutes)
-14. [Developer & Contribution Guide](#14-developer--contribution-guide)
+13. [Developer & Contribution Guide](#14-developer--contribution-guide)
 
 ---
 
@@ -353,46 +352,7 @@ python tests/run_tests.py
 
 ---
 
-## 13. Hackathon Demo & Presentation Script (5 Minutes)
-
-When presenting CrimeLens to hackathon evaluators or law enforcement officers, follow this 5-minute sequence:
-
-### 1. Minute 0:00 – 0:45 | Command Center Overview
-- Open `http://127.0.0.1:8000`. Show active investigation `CASE0001` (Extortion).
-- Highlight the 6 real-time metrics: **96 entities**, **364 relationships**, **329 evidence records**, **2 communities**, **4 anomalies**, and **6 priority leads**.
-- Walk through the **Active Investigation Signals**: 48h pre-incident communication surge, cross-network bridge conduit, 4-hop financial layering chain, and spatial-temporal alibi conflict.
-
-### 2. Minute 0:45 – 2:00 | Network Explorer & Semantic Zoom
-- Click **Network Explorer**. Demonstrate smooth panning, layout switching (Force-directed / Concentric), and community coloring (Network A Gold `#C59B4A`, Network B Moss Green `#5A7E5A`).
-- Highlight **Nisha Shah (`P0005`)**—flagged with a prominent gold halo as the critical operational conduit between Ahmedabad and Surat.
-- **Demonstrate Semantic Zoom**: Zoom out to demonstrate clean overview topology; zoom in to show progressive disclosure of phone numbers, bank accounts, and relationship badges.
-- Use the **Path & Connectivity Explorer**: Run A* Shortest Path to reveal how complainant Pooja Joshi (`P0007`) connects to Farida Sheikh (`P0012`) through intermediary nodes.
-
-### 3. Minute 2:00 – 2:45 | Entity Dossier & Grounded Evidence
-- Click on **Anil Trivedi (`P0004`)** to open the slide-out **Entity Dossier Drawer**.
-- Point out the **Investigation Priority: HIGH** card and emphasize the natural-language justification.
-- Click an evidence card to inspect its **Provenance Payload**: source record ID (`TXN000044`), timestamp, confidence, and reliability.
-- Show the **Resolved Identity Alias** banner merging "R. Mehta" (`P0020`) into "Rahul Mehta" (`P0003`).
-
-### 4. Minute 2:45 – 3:30 | Multi-Case Dynamic Switching
-- Use the top-header dropdown to switch to **`CASE0002` (Vadodara Vehicle Theft)**.
-- Show how the Command Center immediately recalibrates to `VEHICLE THEFT: SYNDICATE INVESTIGATION`.
-- Open **Timeline & Delta**: Point out how events filter to 49 case-relevant records, with an incident marker for Vadodara.
-- Open **Anomalies & Conflicts**: Show how the view dynamically transitions from extortion anomalies to vehicle transit velocity spikes and burner SIM bursts.
-
-### 5. Minute 3:30 – 4:15 | Contradiction Preservation
-- In **Anomalies & Conflicts**, highlight **Unresolved Contradictions**.
-- Explain the forensic philosophy: *"CrimeLens preserves conflicting claims rather than guessing or silently overwriting."*
-- Show the alibi impossibility card (210 km in 10 minutes) and explain how the platform provides actionable analytical guidance (FASTag logs, cell tower subpoenas).
-
-### 6. Minute 4:15 – 5:00 | Intelligence Brief & Conclusion
-- Click **Intelligence Brief**. Show the formal report structured into `[FACT]`, `[INFERENCE]`, and `[RECOMMENDATION]`.
-- Demonstrate the **Print Brief** feature (`window.print()`).
-- Conclude: *"CrimeLens transforms fragmented chaos into transparent, explainable, and court-admissible investigative intelligence."*
-
----
-
-## 14. Developer & Contribution Guide
+## 13. Developer & Contribution Guide
 
 To extend or customize CrimeLens:
 
@@ -406,7 +366,7 @@ To extend or customize CrimeLens:
 
 ---
 
-## 15. License
+## 14. License
 
 Distributed under the **MIT License**. See `LICENSE` for details.
 
