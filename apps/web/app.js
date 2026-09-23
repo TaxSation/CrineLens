@@ -194,10 +194,10 @@ function renderCommandCenter() {
     const tr = document.createElement("tr");
     const badgeClass = lead.priority === "HIGH" ? "badge-high" : "badge-medium";
     tr.innerHTML = `
-      <td style="font-family: var(--font-mono); color: var(--text-muted);">#${idx + 1}</td>
-      <td><strong>${lead.name}</strong> <span style="font-family: var(--font-mono); color: var(--text-muted); font-size:11px;">(${lead.person_id})</span></td>
+      <td style="font-family: var(--font-mono); color: var(--text-muted); font-size: 13.5px;">#${idx + 1}</td>
+      <td style="font-size: 14.5px;"><strong>${lead.name}</strong> <span style="font-family: var(--font-mono); color: var(--text-muted); font-size: 12.5px;">(${lead.person_id})</span></td>
       <td><span class="badge ${badgeClass}">${lead.priority}</span></td>
-      <td style="font-size: 11.5px; color: var(--text-secondary); max-width: 320px;">${lead.reason}</td>
+      <td style="font-size: 13.5px; line-height: 1.55; color: var(--text-secondary);">${lead.reason}</td>
       <td>
         <button class="btn-inspect" onclick="openEntityDossier('${lead.person_id}')">Dossier</button>
       </td>
@@ -1181,9 +1181,9 @@ async function openEntityDossier(entityId) {
       const a = profile.attributes.alias_details || {};
       aliasBox.innerHTML = `
         <span class="badge badge-conflict">RESOLVED IDENTITY ALIAS</span>
-        <div style="margin-top: 4px; font-size: 11.5px;">
+        <div style="margin-top: 4px; font-size: 13.5px;">
           Merged Record: <strong>${a.alias_name || profile.name}</strong> ↔ <strong>${a.canonical_name || "Rahul Mehta"}</strong><br/>
-          <span style="color: var(--text-muted);">${a.reason || "Shared phone 9000010003 & organization"}</span>
+          <span style="color: var(--text-muted); font-size: 12px;">${a.reason || "Shared phone 9000010003 & organization"}</span>
         </div>
       `;
     } else {
@@ -1198,9 +1198,9 @@ async function openEntityDossier(entityId) {
     prioCard.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
         <span class="badge badge-${pClass}">INVESTIGATION PRIORITY: ${prio.level}</span>
-        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">Score: ${prio.score}</span>
+        <span style="font-family: var(--font-mono); font-size: 12.5px; color: var(--text-muted);">Score: ${prio.score}</span>
       </div>
-      <div style="font-size: 12px; color: var(--text-secondary);">${prio.reason}</div>
+      <div style="font-size: 14px; color: var(--text-secondary); line-height: 1.5;">${prio.reason}</div>
     `;
 
     // Graph Centralities
@@ -1221,8 +1221,8 @@ async function openEntityDossier(entityId) {
       confBox.innerHTML = profile.contradictions.map(c => `
         <div class="dossier-evidence-card" style="border-left: 3px solid var(--rust-primary);">
           <span class="badge badge-conflict">${c.status}</span>
-          <div style="font-weight: 600; margin-top: 4px;">${c.title}</div>
-          <div style="color: var(--text-secondary); font-size: 11.5px; margin-top: 2px;">${c.investigative_guidance}</div>
+          <div style="font-weight: 600; margin-top: 4px; font-size: 14.5px;">${c.title}</div>
+          <div style="color: var(--text-secondary); font-size: 13.5px; line-height: 1.5; margin-top: 2px;">${c.investigative_guidance}</div>
         </div>
       `).join("");
     } else {
@@ -1241,7 +1241,7 @@ function renderDossierEvidence(profile) {
 
   const edges = profile.connected_edges || [];
   if (edges.length === 0) {
-    container.innerHTML = `<div style="color: var(--text-muted); font-size: 12px;">No direct evidence records logged.</div>`;
+    container.innerHTML = `<div style="color: var(--text-muted); font-size: 14px;">No direct evidence records logged.</div>`;
     return;
   }
 
@@ -1251,18 +1251,18 @@ function renderDossierEvidence(profile) {
     return `
       <div class="dossier-evidence-card">
         <div class="dossier-evidence-top">
-          <span style="color: var(--gold-primary);">${prov.source_record_id}</span>
-          <span style="color: var(--text-muted);">${prov.timestamp || "Registry Link"}</span>
+          <span style="color: var(--gold-primary); font-size: 12.5px;">${prov.source_record_id}</span>
+          <span style="color: var(--text-muted); font-size: 12.5px;">${prov.timestamp || "Registry Link"}</span>
         </div>
-        <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 2px;">
+        <div style="font-weight: 600; color: var(--text-primary); font-size: 14px; margin-bottom: 2px;">
           ${e.type}: ${e.source} ↔ ${e.target}
         </div>
-        <div style="color: var(--text-secondary); font-size: 11.5px;">
+        <div style="color: var(--text-secondary); font-size: 13.5px; line-height: 1.45;">
           ${prov.context || "Direct verified linkage"}
         </div>
         <div style="margin-top: 4px; display: flex; gap: 8px;">
           <span class="badge badge-fact">${prov.evidence_class}</span>
-          <span style="font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);">Conf: ${prov.confidence} | Rel: ${prov.reliability}</span>
+          <span style="font-family: var(--font-mono); font-size: 11.5px; color: var(--text-muted);">Conf: ${prov.confidence} | Rel: ${prov.reliability}</span>
         </div>
       </div>
     `;
@@ -1393,14 +1393,14 @@ function renderAnomaliesAndConflicts() {
         <div class="anomaly-card-hero ${sevClass}">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
             <span class="anomaly-hero-metric ${sevClass}">${a.severity} ANOMALY</span>
-            <span style="font-family: var(--font-mono); font-size: 11.5px; color: var(--text-muted);">${a.timestamp}</span>
+            <span style="font-family: var(--font-mono); font-size: 13px; color: var(--text-muted);">${a.timestamp}</span>
           </div>
-          <div style="font-size: 16px; font-weight: 700; color: var(--text-primary); letter-spacing: 0.3px;">${a.title}</div>
-          <div style="color: var(--text-secondary); font-size: 13px; line-height: 1.55;">${a.description}</div>
+          <div style="font-size: 18.5px; font-weight: 700; color: var(--text-primary); letter-spacing: 0.3px;">${a.title}</div>
+          <div style="color: var(--text-secondary); font-size: 15px; line-height: 1.6;">${a.description}</div>
           <div class="guidance-box-hero">
             <strong style="color: var(--gold-primary);">Investigator Guidance [RECOMMENDED ACTION]:</strong> ${a.recommendation}
           </div>
-          <div style="display: flex; gap: 8px; font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); border-top: 1px solid var(--border-subtle); padding-top: 10px;">
+          <div style="display: flex; gap: 8px; font-family: var(--font-mono); font-size: 12.5px; color: var(--text-muted); border-top: 1px solid var(--border-subtle); padding-top: 10px;">
             Evidence Records: <span style="color: var(--text-secondary);">${(a.evidence_records || []).join(", ")}</span>
           </div>
         </div>
@@ -1422,20 +1422,20 @@ function renderAnomaliesAndConflicts() {
         <div class="conflict-card-hero">
           <div class="conflict-header">
             <span class="badge badge-conflict">${c.status}</span>
-            <span style="font-family: var(--font-mono); font-size: 11.5px; color: var(--text-muted);">${c.timestamp}</span>
+            <span style="font-family: var(--font-mono); font-size: 13px; color: var(--text-muted);">${c.timestamp}</span>
           </div>
-          <div style="font-size: 16px; font-weight: 700; color: var(--text-primary);">${c.title} (${c.entity_name})</div>
+          <div style="font-size: 18.5px; font-weight: 700; color: var(--text-primary);">${c.title} (${c.entity_name})</div>
           ${impossibilityPill}
           <div class="conflict-split">
             <div class="claim-box">
               <div class="claim-source-label">CLAIM A: ${c.claim_a.source}</div>
-              <div style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5;">${c.claim_a.narrative}</div>
-              <div style="margin-top: 8px; font-family: var(--font-mono); font-size: 10.5px; color: var(--gold-primary);">${c.claim_a.source_record_id}</div>
+              <div style="font-size: 14.5px; color: var(--text-secondary); line-height: 1.5;">${c.claim_a.narrative}</div>
+              <div style="margin-top: 8px; font-family: var(--font-mono); font-size: 12px; color: var(--gold-primary);">${c.claim_a.source_record_id}</div>
             </div>
             <div class="claim-box">
               <div class="claim-source-label">CLAIM B: ${c.claim_b.source}</div>
-              <div style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5;">${c.claim_b.narrative}</div>
-              <div style="margin-top: 8px; font-family: var(--font-mono); font-size: 10.5px; color: var(--gold-primary);">${c.claim_b.source_record_id}</div>
+              <div style="font-size: 14.5px; color: var(--text-secondary); line-height: 1.5;">${c.claim_b.narrative}</div>
+              <div style="margin-top: 8px; font-family: var(--font-mono); font-size: 12px; color: var(--gold-primary);">${c.claim_b.source_record_id}</div>
             </div>
           </div>
           <div class="guidance-box-hero danger">
@@ -1452,20 +1452,20 @@ function renderAnomaliesAndConflicts() {
       <div class="section-box" style="border-left: 4px solid var(--amber-primary); padding: 20px 22px;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <span class="badge badge-inference">${h.finding_type} CANDIDATE (Score: ${h.score})</span>
-          <span style="font-family: var(--font-mono); font-size: 11px; color: var(--gold-primary); font-weight: 600;">${h.predicted_relationship}</span>
+          <span style="font-family: var(--font-mono); font-size: 12.5px; color: var(--gold-primary); font-weight: 600;">${h.predicted_relationship}</span>
         </div>
-        <div style="font-size: 16px; font-weight: 700; color: var(--text-primary); margin-top: 6px;">
+        <div style="font-size: 18.5px; font-weight: 700; color: var(--text-primary); margin-top: 6px;">
           ${h.source_name} (${h.source_id}) ↔ ${h.target_name} (${h.target_id})
         </div>
         <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
           ${h.evidence_signals.map(s => `
-            <div style="background: var(--bg-elevated); padding: 10px 14px; border-radius: var(--radius-sm); font-size: 12px; border: 1px solid var(--border-subtle);">
+            <div style="background: var(--bg-elevated); padding: 10px 14px; border-radius: var(--radius-sm); font-size: 14px; border: 1px solid var(--border-subtle);">
               <strong style="color: var(--gold-primary);">${s.signal_type}:</strong> ${s.details}
-              <div style="font-family: var(--font-mono); font-size: 10.5px; color: var(--text-muted); margin-top: 3px;">Records: ${s.records.join(", ")}</div>
+              <div style="font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); margin-top: 3px;">Records: ${s.records.join(", ")}</div>
             </div>
           `).join("")}
         </div>
-        <div style="background: var(--bg-elevated); padding: 10px 14px; border-radius: var(--radius-sm); font-size: 12.5px; margin-top: 8px; border-left: 3px solid #7ab87a;">
+        <div style="background: var(--bg-elevated); padding: 10px 14px; border-radius: var(--radius-sm); font-size: 14.5px; margin-top: 8px; border-left: 3px solid #7ab87a;">
           <strong style="color: #7ab87a;">Tactical Recommendation [RECOMMENDATION]:</strong> ${h.recommendation}
         </div>
       </div>
