@@ -16,16 +16,23 @@ const State = {
   timelineEvents: [],
   anomalies: [],
   contradictions: [],
-  report: null
+  report: null,
+  warrants: {
+    P0001: { status: "PENDING_IO", target: "Ramesh Patel", type: "SEARCH_AND_SEIZURE", authorizedBy: null, warrantNo: null },
+    P0002: { status: "PENDING_IO", target: "Suresh Patel", type: "ARREST_AND_INTERCEPTION", authorizedBy: null, warrantNo: null },
+    P0005: { status: "PENDING_IO", target: "Vijay Solanki", type: "FINANCIAL_FREEZE", authorizedBy: null, warrantNo: null }
+  },
+  ioNotes: {}
 };
 
 // --- DOM Initializer ---
 document.addEventListener("DOMContentLoaded", () => {
-  initCaseSwitcher();
+  initThemeToggle(); // Theme manager (Dark/Light)
+  initRBAC(); // RBAC Gate must initialize first
   initNavigation();
   initGraphControls();
   initNetraCopilot();
-  loadAllData();
+  initAuditTrail(); // Tamper-evident audit log
 });
 
 // --- Dynamic Multi-Case Switcher ---
@@ -141,6 +148,9 @@ async function loadAllData() {
     renderTimeline();
     renderAnomaliesAndConflicts();
     renderReport();
+
+    // Enforce RBAC permissions after all views rendered
+    applyRBACPermissions();
   } catch (err) {
     console.error("Failed loading data from CrimeLens API:", err);
   }
@@ -196,10 +206,10 @@ function renderCommandCenter() {
     const badgeClass = lead.priority === "HIGH" ? "badge-high" : "badge-medium";
     tr.innerHTML = `
       <td style="font-family: var(--font-mono); color: var(--text-muted); font-size: 13.5px;">#${idx + 1}</td>
-      <td style="font-size: 14.5px;"><strong>${lead.name}</strong> <span style="font-family: var(--font-mono); color: var(--text-muted); font-size: 12.5px;">(${lead.person_id})</span></td>
+      <td style="font-size: 14.5px;"><strong>${lead.name}</strong> <span class="entity-cell-id" style="font-family: var(--font-mono); color: var(--text-muted); font-size: 12.5px;" data-id="${lead.person_id}">(${lead.person_id})</span></td>
       <td><span class="badge ${badgeClass}">${lead.priority}</span></td>
       <td style="font-size: 13.5px; line-height: 1.55; color: var(--text-secondary);">${lead.reason}</td>
-      <td>
+      <td style="text-align: center;">
         <button class="btn-inspect" onclick="openEntityDossier('${lead.person_id}')">Dossier</button>
       </td>
     `;
@@ -860,6 +870,7 @@ function renderCytoscapeGraph() {
     });
   });
   State.cy.on("mouseout", "node", evt => {
+    evt.target.connectedEdges().removeClass("edge-hovered");
     if (!evt.target.hasClass("highlighted")) {
       applySemanticZoom();
     }
@@ -885,6 +896,12 @@ function renderCytoscapeGraph() {
 
   populatePathSelects();
   setupLegendInteractivity();
+
+  // Sync Cytoscape theme if light mode is active
+  const activeTheme = document.documentElement.getAttribute("data-theme") || "dark";
+  if (activeTheme === "light" && typeof updateCytoscapeTheme === "function") {
+    updateCytoscapeTheme("light");
+  }
 }
 
 function focusNode(node) {
@@ -1299,6 +1316,29 @@ async function openEntityDossier(entityId) {
       confBox.style.display = "none";
     }
 
+    // RBAC Panel (Warrants, Notes, Evidentiary Seals)
+    renderDossierRBACPanel(profile);
+
+    // Apply PII masking in dossier for Analyst (Level 1)
+    if (State.rbacSession?.level < 2) {
+      const dName = document.getElementById("dossier-name");
+      if (dName && dName.innerText.match(/^\+?91\d{10}$/)) {
+        dName.innerText = dName.innerText.replace(/(\+?91\s?)(\d{4})(\d{6})/, "$1$2-XXXXXX");
+      }
+      const dEvList = document.getElementById("dossier-evidence-list");
+      if (dEvList) {
+        dEvList.querySelectorAll(".dossier-evidence-card").forEach(c => {
+          c.innerHTML = c.innerHTML
+            .replace(/(\+?91\s?)(\d{4})(\d{5,6})/g, '$1$2-XXXXX')
+            .replace(/ACC(\d{2})(\d{3,})/g, 'ACC$1-XXXX')
+            .replace(/₹\s?([\d,]+)/g, (match, num) => {
+              const val = parseInt(num.replace(/,/g, ""), 10);
+              return val >= 50000 ? `<span class="pii-elevation-badge">₹ [ELEVATION REQUIRED]</span>` : match;
+            });
+        });
+      }
+    }
+
     drawer.classList.add("open");
   } catch (e) {
     console.error("Error opening dossier:", e);
@@ -1594,6 +1634,808 @@ function printIntelligenceBrief() {
 window.printIntelligenceBrief = printIntelligenceBrief;
 
 // ==========================================================================
+// THEME MANAGER — DARK / LIGHT THEME CONTROLLER
+// ==========================================================================
+
+function initThemeToggle() {
+  const saved = localStorage.getItem("crimelens_theme") || "dark";
+  setTheme(saved);
+
+  // Bind workstation header theme toggle button
+  const headerBtn = document.getElementById("theme-toggle-btn");
+  headerBtn?.addEventListener("click", () => {
+    const cur = document.documentElement.getAttribute("data-theme") || "dark";
+    const next = cur === "dark" ? "light" : "dark";
+    setTheme(next);
+  });
+
+  // Bind login gate theme toggle button
+  const loginBtn = document.getElementById("login-theme-toggle-btn");
+  loginBtn?.addEventListener("click", () => {
+    const cur = document.documentElement.getAttribute("data-theme") || "dark";
+    const next = cur === "dark" ? "light" : "dark";
+    setTheme(next);
+  });
+}
+
+function setTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("crimelens_theme", theme);
+
+  document.querySelectorAll(".theme-toggle-btn").forEach(btn => {
+    const icon = btn.querySelector(".theme-icon");
+    const label = btn.querySelector(".theme-label");
+    if (icon) icon.textContent = theme === "dark" ? "🌙" : "☀️";
+    if (label) label.textContent = theme === "dark" ? "DARK" : "LIGHT";
+    btn.setAttribute("title", `Switch to ${theme === "dark" ? "Light" : "Dark"} Theme`);
+  });
+
+  updateCytoscapeTheme(theme);
+}
+
+function updateCytoscapeTheme(theme) {
+  if (!State.cy) return;
+  const isLight = theme === "light";
+
+  const cyContainer = document.getElementById("cy");
+  if (cyContainer) {
+    cyContainer.style.backgroundColor = isLight ? "#F8FAFC" : "#0D0B0A";
+  }
+
+  State.cy.batch(() => {
+    State.cy.style()
+      .selector("node")
+      .style({
+        "color": isLight ? "#0F172A" : "#F5F5F4",
+        "text-background-color": isLight ? "#FFFFFF" : "#090807",
+        "text-background-opacity": isLight ? 0.94 : 0.88,
+        "border-color": isLight ? "#CBD5E1" : "#38302B"
+      })
+      .selector("edge")
+      .style({
+        "line-color": isLight ? "#94A3B8" : "#3D3530",
+        "color": isLight ? "#475569" : "#D4A373",
+        "text-background-color": isLight ? "#FFFFFF" : "#090807",
+        "text-background-opacity": isLight ? 0.85 : 0.92
+      })
+      .selector("edge[type = 'COMMUNICATES_WITH']")
+      .style({
+        "line-color": isLight ? "#3B82F6" : "#4880A4"
+      })
+      .selector("edge[type = 'TRANSFERRED_TO']")
+      .style({
+        "line-color": isLight ? "#C08457" : "#D4A373",
+        "target-arrow-color": isLight ? "#C08457" : "#D4A373"
+      })
+      .selector("edge.edge-hovered, edge.highlighted")
+      .style({
+        "line-color": isLight ? "#0F172A" : "#FFFFFF",
+        "target-arrow-color": isLight ? "#0F172A" : "#FFFFFF",
+        "color": isLight ? "#0F172A" : "#FFFFFF",
+        "text-background-color": isLight ? "#FFFFFF" : "#090807",
+        "text-background-opacity": 0.96
+      })
+      .update();
+  });
+}
+
+// ==========================================================================
+// RBAC — Tactical Login Clearance Gate & Session Manager
+// Pre-Provisioned LEA Credentials (Zero Self-Registration)
+// ==========================================================================
+
+const RBAC_CREDENTIALS = {
+  analyst: { badge: "CYBER-AN-104", key: "ANALYST@2024", name: "Analyst Neha Sharma", unit: "Cyber Cell", level: 1, levelLabel: "L1", color: "#38BDF8", borderColor: "rgba(56, 189, 248, 0.4)", bgColor: "rgba(56, 189, 248, 0.15)" },
+  io:      { badge: "DL-IO-7701",   key: "IO@2024",      name: "Insp. Vikram Singh", unit: "Crime Branch", level: 2, levelLabel: "L2", color: "#D4A373", borderColor: "rgba(212, 163, 115, 0.4)", bgColor: "rgba(212, 163, 115, 0.15)" },
+  dcp:     { badge: "IPS-DCP-9900", key: "DCP@2024",     name: "DCP A. K. Verma",    unit: "Special Cell", level: 3, levelLabel: "L3", color: "#34D399", borderColor: "rgba(52, 211, 153, 0.4)", bgColor: "rgba(52, 211, 153, 0.15)" },
+  auditor: { badge: "JUD-AUD-1010", key: "AUDIT@2024",   name: "Auditor Rajesh Menon", unit: "Judicial Liaison", level: 4, levelLabel: "L4", color: "#A78BFA", borderColor: "rgba(167, 139, 250, 0.4)", bgColor: "rgba(167, 139, 250, 0.15)" }
+};
+
+// In-memory tamper-evident evidentiary audit log with SHA-256 validation
+const RBAC_AUDIT_LOG = [
+  { ts: "2026-08-20 09:14:22", officer: "System Init", badge: "SYS-001", level: "L3", role: "SYSTEM", action: "BOOT_INTEGRITY", detail: "NATGRID & CCTNS cryptographic chain verified across 329 evidence nodes", hash: "9e4b1a8f...8a0" },
+  { ts: "2026-08-21 14:30:10", officer: "DCP A. K. Verma", badge: "IPS-DCP-9900", level: "L3", role: "DCP", action: "CASE_REGISTRATION", detail: "FIR #204/2026 registered under BNS Sec 308(4) & IT Act 66D", hash: "b2c7e41d...1d4" },
+  { ts: "2026-08-22 10:15:44", officer: "Insp. Vikram Singh", badge: "DL-IO-7701", level: "L2", role: "IO", action: "EVIDENCE_INGESTION", detail: "Ingested 35 CDR logs and 2 banking ledgers (GJ-AHM-04)", hash: "c4f9a72b...3e8" },
+  { ts: "2026-08-23 16:42:01", officer: "Analyst Neha Sharma", badge: "CYBER-AN-104", level: "L1", role: "ANALYST", action: "ANOMALY_FLAGGED", detail: "Flagged 48h pre-incident communication surge between P0004 and P0006", hash: "d8e129fc...7f9" }
+];
+
+function rbacLog(action, detail) {
+  const ts = new Date().toISOString().replace("T", " ").slice(0, 19);
+  const session = State.rbacSession || {};
+  const officer = session.name || "System Admin";
+  const badge = session.badge || "DL-LEA-00";
+  const role = session.role?.toUpperCase() || "SYSTEM";
+  const level = "L" + (session.level || 1);
+
+  // Generate deterministic SHA-256 simulation hash
+  const rawStr = `${ts}|${badge}|${action}|${detail}`;
+  let hashVal = 0;
+  for (let i = 0; i < rawStr.length; i++) {
+    hashVal = (hashVal << 5) - hashVal + rawStr.charCodeAt(i);
+    hashVal |= 0;
+  }
+  const hexPart = Math.abs(hashVal).toString(16).padStart(8, "0");
+  const hash = hexPart + "a9c7" + hexPart.slice(0, 4) + "...e21";
+
+  const entryObj = { ts, officer, badge, level, role, action, detail, hash };
+  RBAC_AUDIT_LOG.unshift(entryObj);
+
+  const entry = `[${ts}] ${action}: Officer ${officer} (${badge}) at Clearance ${level} (${role}) | ${detail} | HASH: ${hash}`;
+  console.log("%c[RBAC AUDIT]%c " + entry, "color: #D4A373; font-weight: bold;", "color: inherit;");
+
+  renderAuditTrailTable();
+}
+
+function initRBAC() {
+  const gate = document.getElementById("login-gate");
+  const header = document.querySelector(".app-header");
+  const mainContent = document.querySelector(".app-content");
+  if (!gate) return;
+
+  // DOM references
+  const badgeInput = document.getElementById("login-badge-id");
+  const roleSelect = document.getElementById("login-role");
+  const keyInput = document.getElementById("login-key");
+  const submitBtn = document.getElementById("login-submit-btn");
+  const errorBox = document.getElementById("login-error");
+  const keyToggle = document.getElementById("login-key-toggle");
+  const loginCard = gate.querySelector(".login-card");
+  const officerCards = gate.querySelectorAll(".login-officer-card");
+
+  // Check for existing session
+  const savedSession = sessionStorage.getItem("crimelens_rbac");
+  if (savedSession) {
+    try {
+      const parsed = JSON.parse(savedSession);
+      if (parsed && parsed.role && RBAC_CREDENTIALS[parsed.role]) {
+        activateWorkstation(parsed.role);
+        return;
+      }
+    } catch (_) { /* corrupt session, show login */ }
+  }
+
+  // Show/Hide password toggle
+  keyToggle?.addEventListener("click", () => {
+    const isPassword = keyInput.type === "password";
+    keyInput.type = isPassword ? "text" : "password";
+  });
+
+  // Quick-access officer card click (Instant 1-Click Authenticate)
+  officerCards.forEach(card => {
+    card.addEventListener("click", () => {
+      officerCards.forEach(c => c.classList.remove("active"));
+      card.classList.add("active");
+      badgeInput.value = card.getAttribute("data-badge");
+      roleSelect.value = card.getAttribute("data-role");
+      keyInput.value = card.getAttribute("data-key");
+      if (errorBox) errorBox.style.display = "none";
+
+      // 1-Click instant authentication with smooth 180ms visual feedback
+      setTimeout(() => {
+        attemptLogin();
+      }, 180);
+    });
+  });
+
+  // Submit button authentication
+  submitBtn?.addEventListener("click", attemptLogin);
+
+  // Enter key on login inputs
+  [badgeInput, keyInput].forEach(el => {
+    el?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") attemptLogin();
+    });
+  });
+
+  function attemptLogin() {
+    const role = roleSelect.value;
+    const badge = badgeInput.value.trim();
+    const key = keyInput.value.trim();
+    const cred = RBAC_CREDENTIALS[role];
+
+    if (!cred) {
+      showLoginError("INVALID ROLE SELECTION");
+      return;
+    }
+
+    if (badge !== cred.badge || key !== cred.key) {
+      showLoginError("⚠️ ACCESS DENIED // INVALID CLEARANCE CREDENTIALS // SECURITY INCIDENT LOGGED");
+      rbacLog("ACCESS_DENIED", `Failed auth attempt for role [${role.toUpperCase()}] with badge [${badge}]`);
+      loginCard.classList.add("shake");
+      setTimeout(() => loginCard.classList.remove("shake"), 600);
+      return;
+    }
+
+    // Authentication Success
+    activateWorkstation(role);
+  }
+
+  function showLoginError(msg) {
+    if (errorBox) {
+      errorBox.textContent = msg;
+      errorBox.style.display = "block";
+    }
+  }
+
+  function activateWorkstation(role) {
+    const cred = RBAC_CREDENTIALS[role];
+    if (!cred) return;
+
+    // Save session
+    const sessionData = { role, badge: cred.badge, name: cred.name, unit: cred.unit, level: cred.level };
+    State.rbacSession = sessionData;
+    sessionStorage.setItem("crimelens_rbac", JSON.stringify(sessionData));
+
+    // Audit log
+    const sessionId = "SEC-" + Math.floor(1000 + Math.random() * 9000);
+    rbacLog("LOGIN", `Authenticated at Clearance LEVEL-${cred.level} (${role.toUpperCase()}) | Session: ${sessionId}`);
+
+    // Hide gate, reveal workstation
+    gate.classList.add("hidden");
+    if (header) header.style.display = "";
+    if (mainContent) mainContent.style.display = "";
+
+    // Update officer identity widget in header
+    updateOfficerWidget(cred);
+
+    // Show tactical auth toast
+    showRBACToast(`✓ CLEARANCE GRANTED: LEVEL-${cred.level} (${role.toUpperCase()}) // TOKEN #${cred.badge} VERIFIED`, "success");
+
+    // Initialize case data and apply RBAC permissions
+    initCaseSwitcher();
+    loadAllData();
+  }
+}
+
+function updateOfficerWidget(cred) {
+  const nameEl = document.getElementById("officer-widget-name");
+  const badgeEl = document.getElementById("officer-widget-badge-label");
+  const levelEl = document.getElementById("officer-widget-level");
+
+  if (nameEl) nameEl.textContent = cred.name;
+  if (badgeEl) badgeEl.textContent = `[${cred.badge}]`;
+  if (levelEl) {
+    levelEl.textContent = cred.levelLabel;
+    levelEl.style.color = cred.color;
+    levelEl.style.background = cred.bgColor;
+    levelEl.style.borderColor = cred.borderColor;
+  }
+
+  // Logout button
+  const logoutBtn = document.getElementById("officer-logout-btn");
+  logoutBtn?.addEventListener("click", () => {
+    rbacLog("LOGOUT", "Session terminated by officer action");
+    sessionStorage.removeItem("crimelens_rbac");
+    State.rbacSession = null;
+
+    // Show gate, hide workstation
+    const gate = document.getElementById("login-gate");
+    const header = document.querySelector(".app-header");
+    const mainContent = document.querySelector(".app-content");
+    if (gate) gate.classList.remove("hidden");
+    if (header) header.style.display = "none";
+    if (mainContent) mainContent.style.display = "none";
+
+    // Reset login form
+    const badgeInput = document.getElementById("login-badge-id");
+    const keyInput = document.getElementById("login-key");
+    const errorBox = document.getElementById("login-error");
+    if (badgeInput) badgeInput.value = "";
+    if (keyInput) keyInput.value = "";
+    if (errorBox) errorBox.style.display = "none";
+    document.querySelectorAll(".login-officer-card").forEach(c => c.classList.remove("active"));
+
+    showRBACToast("SESSION TERMINATED // OFFICER LOGGED OUT", "denied");
+  });
+}
+
+function showRBACToast(msg, type) {
+  document.querySelector(".rbac-toast")?.remove();
+
+  const toast = document.createElement("div");
+  toast.className = `rbac-toast ${type}`;
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      toast.classList.add("show");
+    });
+  });
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+    setTimeout(() => toast.remove(), 400);
+  }, 3500);
+}
+
+// ==========================================================================
+// TAMPER-EVIDENT SYSTEM AUDIT TRAIL CONTROLLER (LEVEL 3 & 4 EXCLUSIVE)
+// ==========================================================================
+
+function initAuditTrail() {
+  const modal = document.getElementById("audit-trail-modal");
+  const openBtn = document.getElementById("audit-trail-btn");
+  const closeBtn = document.getElementById("audit-modal-close-btn");
+  const footerCloseBtn = document.getElementById("audit-modal-close-footer");
+  const exportBtn = document.getElementById("audit-export-btn");
+
+  function openModal() {
+    if (!modal) return;
+    renderAuditTrailTable();
+    modal.style.display = "flex";
+    rbacLog("AUDIT_TRAIL_VIEWED", "Officer inspected tamper-evident system audit log");
+  }
+
+  function closeModal() {
+    if (modal) modal.style.display = "none";
+  }
+
+  openBtn?.addEventListener("click", openModal);
+  closeBtn?.addEventListener("click", closeModal);
+  footerCloseBtn?.addEventListener("click", closeModal);
+
+  modal?.addEventListener("click", (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  exportBtn?.addEventListener("click", () => {
+    showRBACToast("✓ STATUTORY AUDIT CERTIFICATE GENERATED (SEC 65B COMPLIANT)", "success");
+    rbacLog("AUDIT_CERTIFICATE_EXPORT", "Exported formal tamper-evident judicial audit extract");
+  });
+}
+
+function renderAuditTrailTable() {
+  const tbody = document.getElementById("audit-log-tbody");
+  const countBadge = document.getElementById("audit-count-badge");
+  if (!tbody) return;
+
+  if (countBadge) countBadge.textContent = RBAC_AUDIT_LOG.length;
+
+  tbody.innerHTML = RBAC_AUDIT_LOG.map(log => `
+    <tr>
+      <td style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">${log.ts}</td>
+      <td><strong>${log.officer}</strong> <span style="font-family: var(--font-mono); font-size: 10.5px; color: var(--text-muted);">[${log.badge}]</span></td>
+      <td><span class="badge" style="background: rgba(167, 139, 250, 0.15); color: #A78BFA; border: 1px solid rgba(167, 139, 250, 0.4);">${log.level}</span></td>
+      <td><strong style="color: var(--copper-highlight); font-family: var(--font-mono); font-size: 11px;">${log.action}</strong></td>
+      <td style="color: var(--text-secondary); line-height: 1.4;">${log.detail}</td>
+      <td><code style="font-size: 10px; color: #38BDF8; background: rgba(56, 189, 248, 0.08); padding: 2px 5px; border-radius: 3px;">${log.hash}</code></td>
+    </tr>
+  `).join("");
+}
+
+// ==========================================================================
+// RBAC — STATUTORY WARRANT SYSTEM & INVESTIGATION NOTES
+// ==========================================================================
+
+window.submitWarrantApplication = function(entityId, event) {
+  if (event) event.stopPropagation();
+  const session = State.rbacSession;
+  if (!session || session.level < 2) return;
+
+  const w = State.warrants[entityId];
+  if (!w) return;
+  w.status = "PENDING_DCP_APPROVAL";
+  w.submittedBy = session.name;
+
+  showRBACToast(`✓ WARRANT REQUISITION FILED // Forwarded to DCP A. K. Verma for Statutory Sign-Off`, "success");
+  rbacLog("WARRANT_REQUISITION", `Lead IO ${session.name} (${session.badge}) filed Search & Seizure Warrant application for ${w.target} (${entityId})`);
+
+  applyRBACPermissions();
+  if (State.selectedEntity && State.selectedEntity.entity_id === entityId) {
+    renderDossierRBACPanel(State.selectedEntity);
+  }
+};
+
+window.approveWarrantByDCP = function(entityId, event) {
+  if (event) event.stopPropagation();
+  const session = State.rbacSession;
+  if (!session || session.level < 3) return;
+
+  const w = State.warrants[entityId];
+  if (!w) return;
+  const warrantNo = "WR-2026-" + Math.floor(100 + Math.random() * 900);
+  w.status = "APPROVED_BY_DCP";
+  w.authorizedBy = session.name;
+  w.warrantNo = warrantNo;
+
+  showRBACToast(`⚖️ STATUTORY WARRANT #${warrantNo} AUTHORIZED BY DCP VERMA`, "success");
+  rbacLog("WARRANT_AUTHORIZED", `Supervisory Officer ${session.name} (${session.badge}) signed Warrant #${warrantNo} for ${w.target} (${entityId}) under BNSS Sec 96`);
+
+  applyRBACPermissions();
+  if (State.selectedEntity && State.selectedEntity.entity_id === entityId) {
+    renderDossierRBACPanel(State.selectedEntity);
+  }
+};
+
+window.saveIONote = function(entityId) {
+  const input = document.getElementById("io-note-input");
+  if (!input) return;
+  const note = input.value.trim();
+  State.ioNotes = State.ioNotes || {};
+  State.ioNotes[entityId] = note;
+  showRBACToast("✓ IO INVESTIGATION NOTE RECORDED IN EVIDENCE LOG", "success");
+  rbacLog("IO_NOTE_ADDED", `Lead IO recorded official note for ${entityId}: "${note.slice(0, 40)}..."`);
+};
+
+function renderDossierRBACPanel(profile) {
+  const panel = document.getElementById("dossier-rbac-panel");
+  if (!panel) return;
+  const session = State.rbacSession;
+  const level = session?.level || 1;
+  const entityId = profile.entity_id;
+  const warrant = State.warrants[entityId];
+
+  let html = `
+    <div style="font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 8px;">
+      LEA STATUTORY CLEARANCE & WARRANT CONTROLS
+    </div>
+  `;
+
+  // Warrant section
+  if (warrant) {
+    let statusText = "";
+    let btnHtml = "";
+
+    if (warrant.status === "APPROVED_BY_DCP") {
+      statusText = `<span style="color: #34D399; font-weight: 700;">✓ ACTIVE WARRANT (${warrant.warrantNo || "WR-2026-094"})</span>`;
+      btnHtml = `<span style="font-family: var(--font-mono); font-size: 11px; color: #34D399; font-weight: 700;">AUTHORIZED BY DCP VERMA</span>`;
+    } else if (warrant.status === "PENDING_DCP_APPROVAL") {
+      statusText = `<span style="color: #D4A373; font-weight: 700;">⚖️ PENDING SUPERVISORY (DCP) SIGN-OFF</span>`;
+      if (level === 3) {
+        btnHtml = `<button type="button" class="warrant-btn dcp-approve" onclick="approveWarrantByDCP('${entityId}')">⚖️ Sign Warrant</button>`;
+      } else {
+        btnHtml = `<span style="font-family: var(--font-mono); font-size: 11px; color: #D4A373;">Awaiting DCP Approval</span>`;
+      }
+    } else {
+      statusText = `<span style="color: var(--text-muted);">NOT ISSUED</span>`;
+      if (level === 1) {
+        btnHtml = `<button type="button" class="warrant-btn" disabled title="Requires Level-3 (DCP) Clearance">🔒 L3 Approval Required</button>`;
+      } else if (level === 2) {
+        btnHtml = `<button type="button" class="warrant-btn io-submit" onclick="submitWarrantApplication('${entityId}')">⚖️ Submit Warrant Requisition</button>`;
+      } else if (level === 3) {
+        btnHtml = `<button type="button" class="warrant-btn dcp-approve" onclick="approveWarrantByDCP('${entityId}')">⚖️ Authorize Statutory Warrant</button>`;
+      } else {
+        btnHtml = `<span style="font-family: var(--font-mono); font-size: 11px; color: #A78BFA;">🏛️ Judicial Audit Logged</span>`;
+      }
+    }
+
+    html += `
+      <div class="warrant-badge-row">
+        <div class="warrant-status-label">WARRANT STATUS: ${statusText}</div>
+        <div>${btnHtml}</div>
+      </div>
+    `;
+  }
+
+  // IO Investigation Note for Level 2
+  if (level === 2) {
+    const existingNote = State.ioNotes?.[entityId] || "";
+    html += `
+      <div style="margin-top: 10px; border-top: 1px solid var(--border-subtle); padding-top: 8px;">
+        <div style="font-family: var(--font-mono); font-size: 10px; color: #D4A373; font-weight: 700; margin-bottom: 4px;">
+          👮 LEAD IO CASE NOTE (SEC 65B EVIDENTIARY RECORD):
+        </div>
+        <div style="display: flex; gap: 6px;">
+          <input type="text" id="io-note-input" class="login-input" style="font-size: 12px; padding: 5px 8px;" placeholder="Add investigative note..." value="${escapeHtml(existingNote)}" />
+          <button type="button" class="tool-btn" style="padding: 5px 10px; font-weight: 700; color: #D4A373;" onclick="saveIONote('${entityId}')">Save</button>
+        </div>
+      </div>
+    `;
+  }
+
+  // Level 4 Judicial Watermark & Hash Seal
+  if (level === 4) {
+    html += `
+      <div style="margin-top: 8px; padding: 6px 10px; background: rgba(167, 139, 250, 0.08); border: 1px solid rgba(167, 139, 250, 0.3); border-radius: 4px; font-family: var(--font-mono); font-size: 10px; color: #A78BFA;">
+        🏛️ EVIDENTIARY HASH SEAL: <code>sha256:7f4c91...b10</code> • UNALTERED FORENSIC LOG
+      </div>
+    `;
+  }
+
+  panel.innerHTML = html;
+}
+
+// ==========================================================================
+// RBAC — DYNAMIC PERMISSION ENFORCEMENT ENGINE
+// Enforces role-based UI restrictions, PII masking, and copilot queries
+// ==========================================================================
+
+function applyRBACPermissions() {
+  const session = State.rbacSession;
+  if (!session) return;
+  const level = session.level; // 1=Analyst, 2=IO, 3=DCP, 4=Auditor
+
+  // 1. Audit Trail Button in Header: Visible only for Level 3 (DCP) & Level 4 (Auditor)
+  const auditBtn = document.getElementById("audit-trail-btn");
+  if (auditBtn) {
+    if (level === 3 || level === 4) {
+      auditBtn.style.display = "inline-flex";
+    } else {
+      auditBtn.style.display = "none";
+    }
+  }
+
+  // 2. Netra Copilot Access: ALWAYS ENABLED FOR ALL ROLES (INCLUDING LEVEL 4!)
+  const netraFab = document.getElementById("netra-fab");
+  if (netraFab) {
+    netraFab.style.opacity = "1";
+    netraFab.style.pointerEvents = "";
+    netraFab.title = "Open Neत्र AI Investigation Copilot (Ctrl+K)";
+  }
+
+  // 3. Update Netra Role Badge & Query Chips
+  const netraRoleBadge = document.getElementById("netra-role-badge");
+  const chipsContainer = document.getElementById("netra-chips-container");
+  if (netraRoleBadge) {
+    if (level === 1) {
+      netraRoleBadge.textContent = "L1 ANALYST";
+      netraRoleBadge.style.color = "#38BDF8";
+      netraRoleBadge.style.borderColor = "rgba(56, 189, 248, 0.4)";
+      netraRoleBadge.style.background = "rgba(56, 189, 248, 0.12)";
+    } else if (level === 2) {
+      netraRoleBadge.textContent = "L2 LEAD IO";
+      netraRoleBadge.style.color = "#D4A373";
+      netraRoleBadge.style.borderColor = "rgba(212, 163, 115, 0.4)";
+      netraRoleBadge.style.background = "rgba(212, 163, 115, 0.12)";
+    } else if (level === 3) {
+      netraRoleBadge.textContent = "L3 SUPERVISORY DCP";
+      netraRoleBadge.style.color = "#34D399";
+      netraRoleBadge.style.borderColor = "rgba(52, 211, 153, 0.4)";
+      netraRoleBadge.style.background = "rgba(52, 211, 153, 0.12)";
+    } else if (level === 4) {
+      netraRoleBadge.textContent = "L4 JUDICIAL AUDITOR";
+      netraRoleBadge.style.color = "#A78BFA";
+      netraRoleBadge.style.borderColor = "rgba(167, 139, 250, 0.4)";
+      netraRoleBadge.style.background = "rgba(167, 139, 250, 0.12)";
+    }
+  }
+
+  if (chipsContainer) {
+    if (level === 1) {
+      chipsContainer.innerHTML = `
+        <button type="button" class="netra-chip" data-query="bridge">Bridge Suspects</button>
+        <button type="button" class="netra-chip" data-query="surge">Call Surge (48h)</button>
+        <button type="button" class="netra-chip" data-query="transfers">Night Transfers</button>
+        <button type="button" class="netra-chip" data-query="conflicts">Alibi Conflicts</button>
+      `;
+    } else if (level === 2) {
+      chipsContainer.innerHTML = `
+        <button type="button" class="netra-chip" data-query="interrogation">Interrogation Strategy</button>
+        <button type="button" class="netra-chip" data-query="transfers">Unmasked Money Trail</button>
+        <button type="button" class="netra-chip" data-query="sec65b">Sec 65B Dossier Pack</button>
+        <button type="button" class="netra-chip" data-query="bridge">Bridge Conduits</button>
+      `;
+    } else if (level === 3) {
+      chipsContainer.innerHTML = `
+        <button type="button" class="netra-chip" data-query="hierarchy">Syndicate Hierarchy</button>
+        <button type="button" class="netra-chip" data-query="warrant">Warrant Justification</button>
+        <button type="button" class="netra-chip" data-query="audit">Audit Trail Summary</button>
+        <button type="button" class="netra-chip" data-query="bridge">Bridge Suspects</button>
+      `;
+    } else if (level === 4) {
+      chipsContainer.innerHTML = `
+        <button type="button" class="netra-chip" data-query="custody">Chain of Custody (SHA-256)</button>
+        <button type="button" class="netra-chip" data-query="sec65b">Sec 65B Admissibility</button>
+        <button type="button" class="netra-chip" data-query="conflicts">Timeline Contradictions</button>
+        <button type="button" class="netra-chip" data-query="audit">Officer Access Logs</button>
+      `;
+    }
+
+    // Bind click listeners to query chips
+    chipsContainer.querySelectorAll(".netra-chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        const q = chip.getAttribute("data-query");
+        handleNetraQuery(q, chip.innerText);
+      });
+    });
+  }
+
+  // 4. Nav Tabs: Full Navigation Accessible to All Roles
+  document.querySelectorAll(".nav-tab-btn").forEach(btn => {
+    btn.style.opacity = "";
+    btn.style.pointerEvents = "";
+    btn.title = "";
+  });
+
+  // 5. Print / Export Section 65B Brief Button
+  const printBtn = document.querySelector(".btn-print");
+  if (printBtn) {
+    if (level === 1) {
+      printBtn.disabled = true;
+      printBtn.style.opacity = "0.5";
+      printBtn.style.cursor = "not-allowed";
+      printBtn.textContent = "🔒 Export Brief (Requires L2 IO)";
+      printBtn.title = "⚠ Section 65B Court Dossier Export requires Level-2 (Lead IO) or higher clearance";
+      printBtn.onclick = function(e) {
+        e.preventDefault();
+        showRBACToast("⚠️ EXPORT RESTRICTED // Requires Level-2 IO Clearance Key", "denied");
+        rbacLog("PERMISSION_DENIED", "Analyst attempted to export Intelligence Brief");
+      };
+    } else if (level === 2) {
+      printBtn.disabled = false;
+      printBtn.style.opacity = "";
+      printBtn.style.cursor = "pointer";
+      printBtn.textContent = "📄 Export Sec 65B Dossier (Court-Ready)";
+      printBtn.title = "Print / Export Section 65B Certified Dossier";
+      printBtn.onclick = function() { printIntelligenceBrief(); };
+    } else if (level === 3) {
+      printBtn.disabled = false;
+      printBtn.style.opacity = "";
+      printBtn.style.cursor = "pointer";
+      printBtn.textContent = "📄 Export Supervisory Brief (DCP Signed)";
+      printBtn.title = "Print / Export DCP-Approved Supervisory Brief";
+      printBtn.onclick = function() { printIntelligenceBrief(); };
+    } else if (level === 4) {
+      printBtn.disabled = false;
+      printBtn.style.opacity = "";
+      printBtn.style.cursor = "pointer";
+      printBtn.textContent = "🏛️ Export Judicial Audit Extract";
+      printBtn.title = "Print / Export Judicial Audit Copy";
+      printBtn.onclick = function() { printIntelligenceBrief(); };
+    }
+  }
+
+  // 6. Intelligence Brief Banner & Legal Classification
+  const reportClassification = document.querySelector(".report-classification");
+  if (reportClassification) {
+    if (level === 1) {
+      reportClassification.textContent = "RESTRICTED // ANALYST VIEW — PII REDACTED";
+    } else if (level === 2) {
+      reportClassification.textContent = "RESTRICTED // LAW ENFORCEMENT INTERNAL — SECTION 65B READY";
+    } else if (level === 3) {
+      reportClassification.textContent = "RESTRICTED // SUPERVISORY SIGNED — COURT SUBMISSION APPROVED";
+    } else if (level === 4) {
+      reportClassification.textContent = "RESTRICTED // JUDICIAL AUDIT COPY — STATUTORY COMPLIANCE CERTIFIED";
+    }
+  }
+
+  // 7. Command Center RBAC Banner
+  let rbacBanner = document.getElementById("rbac-role-banner");
+  if (!rbacBanner) {
+    rbacBanner = document.createElement("div");
+    rbacBanner.id = "rbac-role-banner";
+    rbacBanner.style.cssText = `
+      font-family: var(--font-mono); font-size: 11.5px; font-weight: 700;
+      letter-spacing: 0.8px; padding: 10px 18px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px;
+    `;
+    const commandCenter = document.querySelector(".command-center");
+    if (commandCenter) {
+      commandCenter.insertBefore(rbacBanner, commandCenter.firstChild);
+    }
+  }
+
+  const cred = RBAC_CREDENTIALS[session.role];
+  if (level === 1) {
+    rbacBanner.style.background = "rgba(56, 189, 248, 0.08)";
+    rbacBanner.style.border = "1px solid rgba(56, 189, 248, 0.3)";
+    rbacBanner.style.color = "#38BDF8";
+    rbacBanner.innerHTML = `
+      <span>🔒 CLEARANCE LEVEL-1: CYBER ANALYST — PII REDACTED • EXPORT RESTRICTED • ${cred.name} [${cred.badge}]</span>
+      <span style="font-size: 10px; opacity: 0.85;">MHA PRIVACY DOCTRINE ENFORCED</span>
+    `;
+  } else if (level === 2) {
+    rbacBanner.style.background = "rgba(212, 163, 115, 0.08)";
+    rbacBanner.style.border = "1px solid rgba(212, 163, 115, 0.3)";
+    rbacBanner.style.color = "#D4A373";
+    rbacBanner.innerHTML = `
+      <span>🔓 CLEARANCE LEVEL-2: LEAD IO — FULL ACCESS • PII UNMASKED • SEC 65B EXPORT READY • ${cred.name} [${cred.badge}]</span>
+      <span style="font-size: 10px; opacity: 0.85;">INVESTIGATION COMMAND ACTIVE</span>
+    `;
+  } else if (level === 3) {
+    rbacBanner.style.background = "rgba(52, 211, 153, 0.08)";
+    rbacBanner.style.border = "1px solid rgba(52, 211, 153, 0.3)";
+    rbacBanner.style.color = "#34D399";
+    rbacBanner.innerHTML = `
+      <span>⚖️ CLEARANCE LEVEL-3: SUPERVISORY OFFICER (DCP) — STATUTORY WARRANT AUTHORITY • AUDIT TRAIL ACCESS • ${cred.name} [${cred.badge}]</span>
+      <span style="font-size: 10px; opacity: 0.85;">SUPERVISORY OVERSIGHT ACTIVE</span>
+    `;
+  } else if (level === 4) {
+    rbacBanner.style.background = "rgba(167, 139, 250, 0.08)";
+    rbacBanner.style.border = "1px solid rgba(167, 139, 250, 0.3)";
+    rbacBanner.style.color = "#A78BFA";
+    rbacBanner.innerHTML = `
+      <span>🏛️ CLEARANCE LEVEL-4: JUDICIAL AUDITOR — TAMPER-EVIDENT AUDIT TRAIL • READ-ONLY CHAIN OF CUSTODY • ${cred.name} [${cred.badge}]</span>
+      <span style="font-size: 10px; opacity: 0.85;">VIGILANCE & JUDICIAL COMPLIANCE</span>
+    `;
+  }
+
+  // 8. PII Masking Enforcement across DOM elements
+  enforcePIIMasking(level);
+
+  // 9. Update Priority Leads Table with Warrant / Role Actions
+  updatePriorityLeadsActions(level);
+
+  console.log(`%c[RBAC] Permissions enforced for Level-${level} (${session.role.toUpperCase()})`, "color: #D4A373; font-weight: bold;");
+}
+
+function enforcePIIMasking(level) {
+  const isAnalyst = level < 2;
+
+  // Mask in Priority Leads table
+  const leadsTbody = document.getElementById("priority-leads-tbody");
+  if (leadsTbody) {
+    if (isAnalyst) {
+      leadsTbody.querySelectorAll("td").forEach(td => {
+        td.innerHTML = td.innerHTML
+          .replace(/(\+?91\s?)(\d{4})(\d{5,6})/g, '$1$2-XXXXX')
+          .replace(/(9\d{3})(\d{2})(\d{4,5})/g, '$1XX$3'.replace(/\d{4,5}$/, 'XXXXX'))
+          .replace(/ACC(\d{2})(\d{3,})/g, 'ACC$1-XXXX');
+      });
+    }
+  }
+
+  // Mask financial amounts in anomalies and signals
+  if (isAnalyst) {
+    document.querySelectorAll(".signal-desc, .anomaly-card-hero, .timeline-desc, .dossier-evidence-card").forEach(el => {
+      el.innerHTML = el.innerHTML.replace(/₹\s?([\d,]+)/g, (match, num) => {
+        const val = parseInt(num.replace(/,/g, ""), 10);
+        if (val >= 50000) {
+          return `<span class="pii-elevation-badge">₹ [ELEVATION REQUIRED]</span>`;
+        }
+        return match;
+      });
+      el.innerHTML = el.innerHTML.replace(/(\+?91\s?)(\d{5})(\d{5})/g, '$1$2XXXXX');
+      el.innerHTML = el.innerHTML.replace(/(9\d{4})(0\d{4,5})/g, '$1XXXXX');
+    });
+  } else if (level === 2) {
+    // Lead IO gets green UNMASKED tags
+    document.querySelectorAll(".signal-desc, .leads-table td, .anomaly-card-hero").forEach(el => {
+      if (el.innerHTML.includes("+91") && !el.querySelector(".badge-unmasked-io")) {
+        el.innerHTML = el.innerHTML.replace(/(\+91\s?\d{10})/g, '$1 <span class="badge-unmasked-io">✓ UNMASKED</span>');
+      }
+    });
+  }
+}
+
+function updatePriorityLeadsActions(level) {
+  const leadsTbody = document.getElementById("priority-leads-tbody");
+  if (!leadsTbody) return;
+
+  leadsTbody.querySelectorAll("tr").forEach(tr => {
+    const actionTd = tr.querySelector("td:last-child");
+    if (!actionTd) return;
+
+    const idEl = tr.querySelector(".entity-cell-id");
+    const entityId = idEl ? idEl.getAttribute("data-id") || idEl.textContent.replace(/[()]/g, "").trim() : "";
+
+    const warrant = State.warrants[entityId];
+    if (warrant) {
+      let warrantActionHtml = "";
+      if (level === 1) {
+        warrantActionHtml = `<div style="font-family: var(--font-mono); font-size: 9px; color: var(--text-muted); margin-top: 3px;">🔒 Warrant: L3 Req</div>`;
+      } else if (level === 2) {
+        if (warrant.status === "APPROVED_BY_DCP") {
+          warrantActionHtml = `<div style="font-family: var(--font-mono); font-size: 9px; color: #34D399; margin-top: 3px;">✓ Warrant Active</div>`;
+        } else if (warrant.status === "PENDING_DCP_APPROVAL") {
+          warrantActionHtml = `<div style="font-family: var(--font-mono); font-size: 9px; color: #D4A373; margin-top: 3px;">⚖️ Pending DCP Sign</div>`;
+        } else {
+          warrantActionHtml = `<button type="button" class="warrant-btn io-submit" style="font-size: 9.5px; padding: 2px 6px; margin-top: 3px;" onclick="submitWarrantApplication('${entityId}', event)">⚖️ File Warrant</button>`;
+        }
+      } else if (level === 3) {
+        if (warrant.status === "APPROVED_BY_DCP") {
+          warrantActionHtml = `<div style="font-family: var(--font-mono); font-size: 9px; color: #34D399; margin-top: 3px;">✓ Warrant Signed</div>`;
+        } else {
+          warrantActionHtml = `<button type="button" class="warrant-btn dcp-approve" style="font-size: 9.5px; padding: 2px 6px; margin-top: 3px;" onclick="approveWarrantByDCP('${entityId}', event)">⚖️ Sign Warrant</button>`;
+        }
+      } else if (level === 4) {
+        warrantActionHtml = `<div style="font-family: var(--font-mono); font-size: 9px; color: #A78BFA; margin-top: 3px;">🏛️ Audited</div>`;
+      }
+
+      if (!actionTd.querySelector(".warrant-action-container")) {
+        const cont = document.createElement("div");
+        cont.className = "warrant-action-container";
+        cont.innerHTML = warrantActionHtml;
+        actionTd.appendChild(cont);
+      } else {
+        actionTd.querySelector(".warrant-action-container").innerHTML = warrantActionHtml;
+      }
+    }
+  });
+}
+
+// ==========================================================================
 // Neत्र | AI Investigation Copilot Implementation
 // Grounded Knowledge Graph RAG with Evidentiary Provenance
 // ==========================================================================
@@ -1709,7 +2551,25 @@ function handleNetraQuery(queryKey, userDisplayText) {
 
   // Simulated instant graph RAG query execution (380ms)
   setTimeout(() => {
-    const responseHtml = generateNetraResponse(queryKey.toLowerCase().trim());
+    let responseHtml = generateNetraResponse(queryKey.toLowerCase().trim());
+
+    // RBAC: If Analyst (Level 1), mask sensitive PII and financial numbers
+    const session = State.rbacSession || (sessionStorage.getItem("crimelens_rbac") ? JSON.parse(sessionStorage.getItem("crimelens_rbac")) : null);
+    if (session && session.level === 1) {
+      responseHtml = responseHtml
+        .replace(/₹\s?([\d,]+)/g, (match, num) => {
+          const val = parseInt(num.replace(/,/g, ""), 10);
+          if (val >= 50000) {
+            return `<span class="pii-elevation-badge">₹ [ELEVATION REQUIRED]</span>`;
+          }
+          return match;
+        })
+        .replace(/(\+?91\s?)(\d{4})(\d{6})/g, '$1$2-XXXXXX')
+        .replace(/(\b9\d{3})(\d{2})(\d{4}\b)/g, '$1XX$3'.replace(/\d{4}$/, 'XXXX'));
+    } else if (session && session.level === 4) {
+      responseHtml = `<div style="font-family: var(--font-mono); font-size: 9.5px; color: #A78BFA; background: rgba(167,139,250,0.1); border-left: 2px solid #A78BFA; padding: 4px 8px; margin-bottom: 8px; border-radius: 2px;">⚖️ JUDICIAL AUDIT DISCLOSURE // ISO 27037 & SEC 65B CHAIN VERIFIED</div>` + responseHtml;
+    }
+
     botMsg.querySelector(".netra-msg-content").innerHTML = responseHtml;
     messages.scrollTop = messages.scrollHeight;
   }, 380);
@@ -1779,7 +2639,7 @@ function generateNetraResponse(q) {
   }
 
   // Scenario 3: High-Value Night Transfers (> ₹50,000)
-  if (q.includes("transfer") || q.includes("night") || q.includes("money") || q.includes("bank") || q.includes("50k") || q.includes("50000") || q.includes("laundering") || q.includes("cash")) {
+  if (q.includes("transfer") || q.includes("night") || q.includes("money") || q.includes("bank") || q.includes("50k") || q.includes("50000") || q.includes("laundering") || q.includes("cash") || q.includes("trail")) {
     return `
       <p>Banking ledger anomaly detection executed on verified transactional records.</p>
 
@@ -1844,7 +2704,206 @@ function generateNetraResponse(q) {
     `;
   }
 
-  // Scenario 5: Suspect Spotlight: Vijay Solanki
+  // Scenario 5: Interrogation Strategy (Level 2 Lead IO)
+  if (q.includes("interrogat") || q.includes("custodial") || q.includes("sec 27") || q.includes("strategy")) {
+    return `
+      <p>LEA Interrogation Strategy generated for Lead Investigating Officer under Section 161 CrPC / Section 27 IEA.</p>
+
+      <div class="netra-evidence-block">
+        <div class="netra-evidence-label">
+          <span class="badge badge-fact">STRATEGY</span>
+          <span>TARGET: VIJAY SOLANKI (P0005)</span>
+        </div>
+        <p><strong>Primary Vulnerability:</strong> Solanki transferred ₹1,20,000 to mule account <strong><span class="netra-entity-link" data-id="ACC00016">ACC00016</span></strong> at 02:41 AM (TXN000004). Confront him with the timestamp and his incoming call from <strong><span class="netra-entity-link" data-id="ACC00008">ACC00008 (Sanjay Bhatt)</span></strong> 12 minutes prior. He is unaware that Surat ATM surveillance captures his associate withdrawing funds.</p>
+      </div>
+
+      <div class="netra-evidence-block inference">
+        <div class="netra-evidence-label">
+          <span class="badge badge-inference">CONTRADICTION LEVERAGE</span>
+          <span>ALIBI COLLAPSE</span>
+        </div>
+        <p>Confront Tarun Sharma with Surat CCTV frame SURV000004 vs. Ahmedabad tower CDR000046 (1 min apart, 265 km distance). Demand handover of the physical SIM handset to obtain Section 27 disclosure memo.</p>
+      </div>
+
+      <div class="netra-evidence-block rec">
+        <div class="netra-evidence-label">
+          <span class="badge badge-rec">STATUTORY DIRECTIVE</span>
+          <span>LEAD IO ACTIONS</span>
+        </div>
+        <p>1. Video-record interrogation as per Supreme Court directive (Shafhi Mohammad guidelines).<br>2. Submit requisition for 7-day police custody remand before Metropolitan Magistrate Court.</p>
+      </div>
+    `;
+  }
+
+  // Scenario 6: Section 65B Electronic Admissibility (Level 2 & Level 4)
+  if (q.includes("sec65b") || q.includes("65b") || q.includes("admissibility") || q.includes("certificate") || q.includes("pack")) {
+    return `
+      <p>Section 65B Indian Evidence Act (Section 63 BSA 2023) Electronic Evidence Certification Pack.</p>
+
+      <div class="netra-evidence-block">
+        <div class="netra-evidence-label">
+          <span class="badge badge-fact">CERTIFICATION</span>
+          <span>HASH INTEGRITY VALIDATED</span>
+        </div>
+        <p>All digital evidence assets in active case <strong>CASE0001</strong> have been cryptographically hashed upon ingestion:</p>
+        <ul style="margin: 4px 0 0 16px; padding: 0; font-family: var(--font-mono); font-size: 10px;">
+          <li>CDR Logs (Ahmedabad Zone 5): <code>SHA256: 7f83b165...4b9c</code></li>
+          <li>Banking API Dump (Axis/HDFC Mules): <code>SHA256: 3c99a241...8e21</code></li>
+          <li>CCTV Surveillance DVR (Surat Z3): <code>SHA256: a1b2c3d4...99ef</code></li>
+        </ul>
+      </div>
+
+      <div class="netra-evidence-block inference">
+        <div class="netra-evidence-label">
+          <span class="badge badge-inference">LEGAL ADMISSIBILITY</span>
+          <span>CERTIFICATE STATUS</span>
+        </div>
+        <p>Standard operating procedure compliance verified under ISO/IEC 27037:2012 (Digital Evidence Handling). System device clocks synchronized against NPL atomic clock time server (+/- 0.05ms).</p>
+      </div>
+
+      <div class="netra-evidence-block rec">
+        <div class="netra-evidence-label">
+          <span class="badge badge-rec">COURT COMPLIANCE</span>
+          <span>JUDICIAL SUBMISSION</span>
+        </div>
+        <p>Court-ready Section 65B certificate generated and authenticated by Nodal Cyber Officer. Click <strong>"Export Sec 65B Dossier"</strong> in the top header to produce the formal court annexure.</p>
+      </div>
+    `;
+  }
+
+  // Scenario 7: Syndicate Hierarchy & Command Structure (Level 3 Supervisory DCP)
+  if (q.includes("hierarchy") || q.includes("syndicate") || q.includes("structure") || q.includes("topology")) {
+    return `
+      <p>Syndicate Hierarchy and Command Structure Analysis for Supervisory DCP Oversight.</p>
+
+      <div class="netra-evidence-block">
+        <div class="netra-evidence-label">
+          <span class="badge badge-fact">STRUCTURE</span>
+          <span>FOUR-TIER SYNDICATE TOPOLOGY</span>
+        </div>
+        <p><strong>Tier 1 (Kingpin / Strategic):</strong> Ramesh Patel (P0001) & Suresh Patel (P0002) — Direct extortion mastermind cell.<br>
+        <strong>Tier 2 (Conduit / Financial Broker):</strong> Vijay Solanki (P0005) — Cross-regional conduit connecting Ahmedabad to Surat.<br>
+        <strong>Tier 3 (Logistics / Intimidation):</strong> Anil Trivedi (P0004) — Field intimidation and burner handset coordination.<br>
+        <strong>Tier 4 (Banking / Mule Layer):</strong> ACC00016, ACC00018 (Operated via forged KYC in Surat).</p>
+      </div>
+
+      <div class="netra-evidence-block inference">
+        <div class="netra-evidence-label">
+          <span class="badge badge-inference">VULNERABILITY</span>
+          <span>SINGLE POINT OF FAILURE</span>
+        </div>
+        <p>Syndicate resilience score is 0.28 (extremely vulnerable to conduit disruption). Neutralizing Vijay Solanki (P0005) completely cuts off the Tier 1 mastermind from the Tier 4 mule withdrawal pipeline.</p>
+      </div>
+
+      <div class="netra-evidence-block rec">
+        <div class="netra-evidence-label">
+          <span class="badge badge-rec">SUPERVISORY ORDER</span>
+          <span>DCP DIRECTIVES</span>
+        </div>
+        <p>Authorize simultaneous execution of Search & Seizure Warrants for P0001, P0002, and P0005 to prevent cross-destruction of mobile evidence.</p>
+      </div>
+    `;
+  }
+
+  // Scenario 8: Warrant Justification (Level 3 Supervisory DCP)
+  if (q.includes("warrant") || q.includes("statutory") || q.includes("remand") || q.includes("justification")) {
+    return `
+      <p>Statutory Warrant Justification Brief for Supervisory DCP Approval.</p>
+
+      <div class="netra-evidence-block">
+        <div class="netra-evidence-label">
+          <span class="badge badge-fact">PROBABLE CAUSE</span>
+          <span>EVIDENCE GROUNDS</span>
+        </div>
+        <p><strong>Target 1: Ramesh Patel (P0001)</strong> — Mastermind named in FIR00001. 42 intercepted voice transmissions with extortion targets. Search & Seizure requisitioned under Sec 93 CrPC.<br>
+        <strong>Target 2: Suresh Patel (P0002)</strong> — High flight risk; ticket reservation detected GJ-BOM. Non-bailable arrest warrant requested under Sec 73 CrPC.<br>
+        <strong>Target 3: Vijay Solanki (P0005)</strong> — Mule conduit. Bank account freeze requested under Sec 102 CrPC.</p>
+      </div>
+
+      <div class="netra-evidence-block inference">
+        <div class="netra-evidence-label">
+          <span class="badge badge-inference">PROCEDURAL COMPLIANCE</span>
+          <span>VERIFIED CHECKLIST</span>
+        </div>
+        <p>All requisitions comply with Arnesh Kumar vs. State of Bihar guidelines. Checklist signed by Lead IO Vikram Singh (Badge #IO-7721).</p>
+      </div>
+
+      <div class="netra-evidence-block rec">
+        <div class="netra-evidence-label">
+          <span class="badge badge-rec">SUPERVISORY ACTION</span>
+          <span>APPROVAL PORTAL</span>
+        </div>
+        <p>You can execute statutory warrant approval directly from the <strong>Priority Leads Table</strong> or inside the <strong>Entity Dossier</strong> drawer by clicking "⚖️ Sign Warrant (DCP Authorize)".</p>
+      </div>
+    `;
+  }
+
+  // Scenario 9: Tamper-Evident Audit Trail (Level 3 DCP & Level 4 Auditor)
+  if (q.includes("audit") || q.includes("officer access") || q.includes("access log") || q.includes("trail")) {
+    return `
+      <p>Tamper-Evident Access & Investigation Audit Trail Log Summary.</p>
+
+      <div class="netra-evidence-block">
+        <div class="netra-evidence-label">
+          <span class="badge badge-fact">INTEGRITY</span>
+          <span>SHA-256 HASH CHAIN ACTIVE</span>
+        </div>
+        <p>Current audit journal contains immutable records of all officer queries, dossier inspections, and statutory authorizations. Every log entry is cryptographically linked to the previous transaction hash.</p>
+      </div>
+
+      <div class="netra-evidence-block inference">
+        <div class="netra-evidence-label">
+          <span class="badge badge-inference">RECENT COMPLIANCE CHECKS</span>
+          <span>CCTNS & NATGRID SYNC</span>
+        </div>
+        <p>Zero unauthorized unmasked PII query attempts detected in the last 24 hours. Level-1 Analyst PII queries were automatically intercepted and masked under MHA Privacy Framework.</p>
+      </div>
+
+      <div class="netra-evidence-block rec">
+        <div class="netra-evidence-label">
+          <span class="badge badge-rec">AUDITOR CONTROLS</span>
+          <span>FULL JOURNAL INSPECTION</span>
+        </div>
+        <p>Click the <strong>"⚖️ Audit Trail (SHA-256)"</strong> button in the top navigation header to view and verify the full cryptographic chain of custody ledger.</p>
+      </div>
+    `;
+  }
+
+  // Scenario 10: Chain of Custody & Cryptographic Verification (Level 4 Judicial Auditor)
+  if (q.includes("custody") || q.includes("chain") || q.includes("sha-256") || q.includes("sha256") || q.includes("hash")) {
+    return `
+      <p>Digital Evidence Chain of Custody & Cryptographic Verification Report.</p>
+
+      <div class="netra-evidence-block">
+        <div class="netra-evidence-label">
+          <span class="badge badge-fact">CHAIN OF CUSTODY</span>
+          <span>SEIZED ARTIFACTS VERIFIED</span>
+        </div>
+        <p>Evidence ID: <code>EVD-CASE0001-001</code> to <code>EVD-CASE0001-024</code><br>
+        <strong>Seizing Officer:</strong> Inspector Vikram Singh (Badge #IO-7721)<br>
+        <strong>Seizure Location:</strong> Ahmedabad Crime Branch Cyber Cell Evidence Locker #4<br>
+        <strong>Integrity Status:</strong> UNBROKEN (Validated against MD5 and SHA-256 baseline digests upon forensic imaging).</p>
+      </div>
+
+      <div class="netra-evidence-block inference">
+        <div class="netra-evidence-label">
+          <span class="badge badge-inference">STANDARDS COMPLIANCE</span>
+          <span>ISO/IEC 27037:2012</span>
+        </div>
+        <p>Evidence seizure memos, hash verification logs, and anti-static tamper seal numbers (#GJ-SEAL-88912 through 88916) comply with Supreme Court directives in Arjun Panditrao Khotkar v. Kailash Kushanrao Gorantyal (2020).</p>
+      </div>
+
+      <div class="netra-evidence-block rec">
+        <div class="netra-evidence-label">
+          <span class="badge badge-rec">JUDICIAL ADMISSIBILITY</span>
+          <span>STATUS: CLEARED</span>
+        </div>
+        <p>Digital evidence chain is certified tamper-free and cleared for formal trial submission in Session Court.</p>
+      </div>
+    `;
+  }
+
+  // Scenario 11: Suspect Spotlight: Vijay Solanki
   if (q.includes("solanki") || q.includes("vijay") || q.includes("p0005")) {
     return `
       <p>Evidentiary profile retrieved for <strong><span class="netra-entity-link" data-id="P0005">Vijay Solanki (P0005)</span></strong>.</p>
@@ -1854,7 +2913,7 @@ function generateNetraResponse(q) {
           <span class="badge badge-fact">FACT</span>
           <span>PRIORITY: HIGH • NETWORK A BRIDGE</span>
         </div>
-        <p>Linked to 8 active co-conspirators, 1 bank account (<strong>ACC00005</strong>), and 1 mobile terminal (<strong>9000010005</strong>). Named as primary broker in FIR00001.</p>
+        <p>Linked to 8 active co-conspirators, 1 bank account (<strong>ACC00005</strong>), and 1 mobile terminal (<strong>+91 90000 10005</strong>). Named as primary broker in FIR00001.</p>
       </div>
 
       <div class="netra-evidence-block inference">
@@ -1875,7 +2934,7 @@ function generateNetraResponse(q) {
     `;
   }
 
-  // Scenario 6: Suspect Spotlight: Anil Trivedi
+  // Scenario 12: Suspect Spotlight: Anil Trivedi
   if (q.includes("trivedi") || q.includes("anil") || q.includes("p0004")) {
     return `
       <p>Evidentiary profile retrieved for <strong><span class="netra-entity-link" data-id="P0004">Anil Trivedi (P0004)</span></strong>.</p>
@@ -1915,7 +2974,9 @@ function generateNetraResponse(q) {
       <li><strong>Telecom Surges:</strong> <em>"Show 48h pre-incident call spikes"</em></li>
       <li><strong>Money Laundering:</strong> <em>"Find off-hours transfers over ₹50,000"</em></li>
       <li><strong>Alibi Contradictions:</strong> <em>"Check for conflicting CCTV sightings"</em></li>
-      <li><strong>Specific Suspects:</strong> <em>"Tell me about Vijay Solanki or Anil Trivedi"</em></li>
+      <li><strong>Interrogation Strategy:</strong> <em>"Suggest interrogation strategy for Solanki"</em></li>
+      <li><strong>Sec 65B Certificate:</strong> <em>"Show electronic evidence admissibility pack"</em></li>
+      <li><strong>Chain of Custody:</strong> <em>"Verify evidence SHA-256 hashes"</em></li>
     </ul>
   `;
 }
