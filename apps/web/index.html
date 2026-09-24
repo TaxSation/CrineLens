@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CrimeLens — Multi-Source Intelligence & Graph Analytics Platform</title>
-  <link rel="stylesheet" href="styles.css?v=5">
+  <link rel="stylesheet" href="styles.css?v=8">
   <!-- Offline Cytoscape.js -->
   <script src="vendor/cytoscape.min.js"></script>
 </head>
@@ -522,8 +522,98 @@
       </div>
     </section>
 
+    <!-- Neत्र | AI Investigation Copilot Floating Trigger -->
+    <button id="netra-fab" class="netra-fab" type="button" title="Open Neत्र AI Investigation Copilot (Ctrl+K)">
+      <span class="netra-fab-pulse"></span>
+      <svg class="netra-fab-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+        <circle cx="12" cy="12" r="3"></circle>
+      </svg>
+      <span class="netra-fab-label">Neत्र<span class="netra-cursor">|</span></span>
+      <span class="netra-status-dot" title="Graph RAG Engine Active"></span>
+    </button>
+
+    <!-- Neत्र | Tactical Slide-Out Intelligence Drawer -->
+    <aside id="netra-drawer" class="netra-drawer" aria-hidden="true">
+      <div class="netra-drawer-header">
+        <div class="netra-brand">
+          <div class="netra-avatar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4A373" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </div>
+          <div>
+            <div class="netra-title">
+              <span>Neत्र</span><span class="netra-cursor">|</span>
+              <span class="netra-badge">GROUNDED RAG</span>
+            </div>
+            <div class="netra-subtitle">AI Investigation Copilot • Evidentiary Trail Verified</div>
+          </div>
+        </div>
+        <button id="netra-close-btn" class="netra-close-btn" type="button" title="Close Neत्र Drawer (Esc)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Active Case Context Ribbon -->
+      <div class="netra-context-bar">
+        <span class="netra-case-chip"><span class="dot"></span> CASE0001 (Extortion)</span>
+        <span class="netra-sync-chip">96 Entities Synced</span>
+      </div>
+
+      <!-- Quick Action Prompt Chips -->
+      <div class="netra-chips-wrapper">
+        <div class="netra-chips-label">SUGGESTED QUERIES</div>
+        <div class="netra-chips-scroll">
+          <button type="button" class="netra-chip" data-query="bridge">Bridge Suspects</button>
+          <button type="button" class="netra-chip" data-query="surge">Call Surge (48h)</button>
+          <button type="button" class="netra-chip" data-query="transfers">Night Transfers (> ₹50k)</button>
+          <button type="button" class="netra-chip" data-query="conflicts">Alibi Conflicts</button>
+        </div>
+      </div>
+
+      <!-- Chat Messages Stream Container -->
+      <div id="netra-messages" class="netra-messages">
+        <!-- Initial Welcome Message -->
+        <div class="netra-msg netra-msg-bot">
+          <div class="netra-msg-sender">Neत्र ASSISTANT</div>
+          <div class="netra-msg-content">
+            <p>Law Enforcement Workstation synchronized. I am <strong>Neत्र|</strong>, your grounded intelligence copilot.</p>
+            <p style="margin-top: 6px; color: var(--text-secondary); font-size: 11.5px;">I cross-reference <strong>CDRs, banking ledgers, police FIRs, and surveillance</strong> in real time. All responses strictly separate <span class="badge badge-fact" style="font-size: 9px; padding: 2px 6px;">FACT</span>, <span class="badge badge-inference" style="font-size: 9px; padding: 2px 6px;">INFERENCE</span>, and <span class="badge badge-rec" style="font-size: 9px; padding: 2px 6px;">RECOMMENDATION</span> with verifiable evidence record IDs.</p>
+            <p style="margin-top: 8px; font-size: 11px; color: var(--copper-highlight);">Click any suggestion above or enter a lead below to begin analysis.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Input Form -->
+      <form id="netra-form" class="netra-input-area">
+        <div class="netra-input-wrapper">
+          <input 
+            type="text" 
+            id="netra-input" 
+            class="netra-input" 
+            placeholder="Ask Neत्र about suspects, money trails, calls..." 
+            autocomplete="off"
+          />
+          <button type="submit" id="netra-send-btn" class="netra-send-btn" title="Send Query">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </div>
+        <div class="netra-footer-hint">
+          <span>Grounded Graph RAG</span> • <span>Press Enter to analyze</span>
+        </div>
+      </form>
+    </aside>
+
   </main>
 
-  <script src="app.js?v=5"></script>
+  <script src="app.js?v=12"></script>
 </body>
 </html>

@@ -5,39 +5,52 @@
    ========================================================================== */
 
 :root {
-  /* Color Tokens */
-  --bg-base: #0c0e11;
-  --bg-surface: #13151b;
-  --bg-elevated: #191c24;
-  --bg-card: #1f232e;
-  --bg-card-hover: #262b38;
-  --bg-accent-subtle: rgba(197, 155, 74, 0.08);
+  /* Color Tokens - Obsidian Scale */
+  --bg-base: #090807;
+  --bg-surface: #12100F;
+  --bg-elevated: #171413;
+  --bg-card: #1C1816;
+  --bg-card-hover: #241F1C;
+  --bg-accent-subtle: rgba(212, 163, 115, 0.08);
 
-  --border-subtle: #252a36;
-  --border-strong: #333a4a;
-  --border-accent: #c59b4a;
+  --border-subtle: #26201D;
+  --border-strong: #38302B;
+  --border-accent: #C08457;
 
-  --text-primary: #ede8df;
-  --text-secondary: #a39e94;
-  --text-muted: #6e6960;
-  --text-inverse: #0c0e11;
+  --text-primary: #F5F5F4;
+  --text-secondary: #A8A29E;
+  --text-muted: #78716C;
+  --text-inverse: #090807;
 
-  /* Semantic Accents */
-  --gold-primary: #c59b4a;
-  --gold-hover: #d8ad56;
-  --gold-subtle: rgba(197, 155, 74, 0.15);
+  /* Accent Tokens - Copper & Crimson */
+  --copper-highlight: #D4A373;
+  --copper-primary: #C08457;
+  --copper-deep: #8C532B;
+  --copper-subtle: rgba(212, 163, 115, 0.12);
+  --copper-glow: rgba(212, 163, 115, 0.20);
 
-  --moss-primary: #5a7e5a;
-  --moss-subtle: rgba(90, 126, 90, 0.15);
+  --crimson-bright: #EF4444;
+  --crimson-primary: #B91C1C;
+  --crimson-deep: #7F1D1D;
+  --crimson-subtle: rgba(239, 68, 68, 0.15);
+  --crimson-glow: rgba(239, 68, 68, 0.22);
 
-  --rust-primary: #b84f3c;
-  --rust-subtle: rgba(184, 79, 60, 0.15);
+  /* Semantic Compatibility Aliases */
+  --gold-primary: #D4A373;
+  --gold-hover: #E2B78D;
+  --gold-subtle: rgba(212, 163, 115, 0.15);
 
-  --amber-primary: #c78d38;
-  --amber-subtle: rgba(199, 141, 56, 0.15);
+  --moss-primary: #4ADE80;
+  --moss-subtle: rgba(74, 222, 128, 0.15);
 
-  --slate-primary: #4e6b82;
-  --slate-subtle: rgba(78, 107, 130, 0.15);
+  --rust-primary: #B91C1C;
+  --rust-subtle: rgba(239, 68, 68, 0.15);
+
+  --amber-primary: #F59E0B;
+  --amber-subtle: rgba(245, 158, 11, 0.15);
+
+  --slate-primary: #4880A4;
+  --slate-subtle: rgba(72, 128, 164, 0.15);
 
   /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -270,45 +283,45 @@ body {
 }
 
 .badge-fact {
-  background: rgba(237, 232, 223, 0.1);
-  color: var(--text-primary);
-  border: 1px solid rgba(237, 232, 223, 0.25);
+  background: rgba(212, 163, 115, 0.14);
+  color: #D4A373;
+  border: 1px solid rgba(212, 163, 115, 0.35);
 }
 
 .badge-inference {
-  background: var(--amber-subtle);
-  color: var(--amber-primary);
-  border: 1px solid rgba(199, 141, 56, 0.3);
+  background: rgba(245, 158, 11, 0.14);
+  color: #F59E0B;
+  border: 1px solid rgba(245, 158, 11, 0.35);
 }
 
 .badge-rec {
-  background: var(--moss-subtle);
-  color: #7ab87a;
-  border: 1px solid rgba(90, 126, 90, 0.35);
+  background: rgba(212, 163, 115, 0.14);
+  color: #D4A373;
+  border: 1px solid rgba(212, 163, 115, 0.35);
 }
 
 .badge-high {
-  background: var(--rust-subtle);
-  color: #e27361;
-  border: 1px solid rgba(184, 79, 60, 0.4);
+  background: rgba(185, 28, 28, 0.22);
+  color: #EF4444;
+  border: 1px solid rgba(239, 68, 68, 0.45);
 }
 
 .badge-medium {
-  background: var(--amber-subtle);
-  color: var(--amber-primary);
-  border: 1px solid rgba(199, 141, 56, 0.3);
+  background: rgba(245, 158, 11, 0.15);
+  color: #F59E0B;
+  border: 1px solid rgba(245, 158, 11, 0.35);
 }
 
 .badge-low {
-  background: rgba(163, 158, 148, 0.1);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-subtle);
+  background: rgba(74, 222, 128, 0.12);
+  color: #4ADE80;
+  border: 1px solid rgba(74, 222, 128, 0.30);
 }
 
 .badge-conflict {
-  background: rgba(184, 79, 60, 0.2);
-  color: #f08271;
-  border: 1px solid var(--rust-primary);
+  background: rgba(239, 68, 68, 0.20);
+  color: #EF4444;
+  border: 1px solid #EF4444;
 }
 
 /* ==========================================================================
@@ -702,32 +715,32 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 .symbol-circle.gold {
-  background: #C59B4A;
+  background: #C08457;
 }
 .symbol-circle.moss {
-  background: #5A7E5A;
+  background: #3B82F6;
 }
 
 .symbol-bridge {
   width: 11px;
   height: 11px;
   border-radius: 50%;
-  background: #D4AF37;
+  background: #D4A373;
   border: 2px solid #FFFFFF;
-  box-shadow: 0 0 4px #D4AF37;
+  box-shadow: 0 0 6px #D4A373;
 }
 
 .symbol-rect.phone {
   width: 9px;
   height: 9px;
   border-radius: 2px;
-  background: #4E6B82;
+  background: #0D9488;
 }
 
 .symbol-diamond.vehicle {
   width: 8px;
   height: 8px;
-  background: #8C6D52;
+  background: #EA580C;
   transform: rotate(45deg);
   border-radius: 1px;
 }
@@ -735,21 +748,21 @@ input:checked + .slider:before {
 .symbol-tag.account {
   width: 9px;
   height: 9px;
-  background: #7A6A85;
+  background: #7C3AED;
   border-radius: 2px;
 }
 
 .symbol-hex.location {
   width: 10px;
   height: 10px;
-  background: #5D8271;
+  background: #15803D;
   clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
 }
 
 .symbol-star.case {
   width: 11px;
   height: 11px;
-  background: #B84F3C;
+  background: #B91C1C;
   clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
 }
 
@@ -758,7 +771,7 @@ input:checked + .slider:before {
   height: 9px;
   border-radius: 50%;
   background: transparent;
-  border: 2px solid #B84F3C;
+  border: 2px solid #EF4444;
 }
 
 .graph-toolbar-group {
@@ -809,14 +822,14 @@ input:checked + .slider:before {
   position: absolute;
   pointer-events: none;
   z-index: 9999;
-  background: rgba(11, 14, 20, 0.95);
-  border: 1px solid var(--gold-primary);
+  background: rgba(18, 16, 15, 0.96);
+  border: 1px solid var(--border-accent);
   border-radius: var(--radius-sm);
   padding: 9px 14px;
   font-family: var(--font-sans);
   font-size: 12.5px;
   color: var(--text-primary);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7), 0 0 10px rgba(197, 155, 74, 0.25);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7), 0 0 10px var(--copper-glow);
   max-width: 320px;
   backdrop-filter: blur(8px);
   transform: translate(-50%, -125%);
@@ -829,6 +842,7 @@ input:checked + .slider:before {
   height: 100%;
   min-height: 400px;
   position: relative;
+  background-color: #0D0B0A;
 }
 
 .tool-btn {
@@ -1161,12 +1175,12 @@ input:checked + .slider:before {
 
 /* Eye-Catching Hero Anomaly Cards */
 .anomaly-card-hero {
-  background: linear-gradient(180deg, var(--bg-surface) 0%, rgba(26, 29, 36, 0.95) 100%);
-  border: 1px solid rgba(184, 79, 60, 0.4);
-  border-left: 5px solid var(--rust-primary);
+  background: linear-gradient(180deg, var(--bg-surface) 0%, rgba(23, 20, 19, 0.98) 100%);
+  border: 1px solid rgba(185, 28, 28, 0.45);
+  border-left: 5px solid var(--crimson-primary);
   border-radius: var(--radius-md);
   padding: 22px 24px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 15px rgba(184, 79, 60, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 15px var(--crimson-subtle);
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   display: flex;
   flex-direction: column;
@@ -1175,24 +1189,24 @@ input:checked + .slider:before {
 
 .anomaly-card-hero:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4), 0 0 22px rgba(184, 79, 60, 0.22);
-  border-color: rgba(229, 62, 62, 0.6);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5), 0 0 22px var(--crimson-glow);
+  border-color: var(--crimson-bright);
 }
 
 .anomaly-card-hero.critical {
-  border-left-color: #e53e3e;
+  border-left-color: var(--crimson-bright);
 }
 
 .anomaly-card-hero.high {
-  border-left-color: #d69e2e;
+  border-left-color: var(--copper-primary);
 }
 
 .anomaly-hero-metric {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(184, 79, 60, 0.2);
-  border: 1px solid rgba(229, 62, 62, 0.5);
+  background: rgba(185, 28, 28, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.5);
   color: #ff8e7b;
   padding: 6px 14px;
   border-radius: var(--radius-sm);
@@ -1205,26 +1219,26 @@ input:checked + .slider:before {
 }
 
 .anomaly-hero-metric.critical {
-  background: rgba(184, 79, 60, 0.22);
-  border-color: rgba(229, 62, 62, 0.65);
+  background: rgba(185, 28, 28, 0.25);
+  border-color: var(--crimson-bright);
   color: #ff8572;
-  box-shadow: 0 0 10px rgba(229, 62, 62, 0.18);
+  box-shadow: 0 0 10px var(--crimson-glow);
 }
 
 .anomaly-hero-metric.high {
-  background: rgba(199, 141, 56, 0.18);
-  border-color: rgba(214, 158, 46, 0.6);
-  color: #f7c06d;
-  box-shadow: 0 0 10px rgba(214, 158, 46, 0.15);
+  background: rgba(192, 132, 87, 0.18);
+  border-color: var(--copper-primary);
+  color: #F7C08A;
+  box-shadow: 0 0 10px var(--copper-glow);
 }
 
 .conflict-card-hero {
-  background: linear-gradient(180deg, var(--bg-surface) 0%, rgba(26, 29, 36, 0.95) 100%);
-  border: 1px solid rgba(214, 158, 46, 0.45);
-  border-left: 5px solid #d69e2e;
+  background: linear-gradient(180deg, var(--bg-surface) 0%, rgba(23, 20, 19, 0.98) 100%);
+  border: 1px solid rgba(192, 132, 87, 0.45);
+  border-left: 5px solid var(--copper-primary);
   border-radius: var(--radius-md);
   padding: 22px 24px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 15px rgba(214, 158, 46, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 15px var(--copper-subtle);
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   display: flex;
   flex-direction: column;
@@ -1315,9 +1329,9 @@ input:checked + .slider:before {
 }
 
 .report-paper {
-  background: #15171e;
+  background: var(--bg-surface);
   border: 1px solid var(--border-strong);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.6);
   padding: 36px 44px;
   border-radius: var(--radius-sm);
   font-family: var(--font-sans);
@@ -1706,3 +1720,408 @@ input:checked + .slider:before {
     page-break-inside: avoid !important;
   }
 }
+
+/* ==========================================================================
+   Neत्र | AI Investigation Copilot Styles
+   ========================================================================== */
+
+/* Floating Action Trigger (FAB) */
+.netra-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 28px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #1C1816 0%, #12100F 100%);
+  border: 1.5px solid var(--border-accent);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.65), 0 0 14px var(--copper-subtle);
+  color: var(--text-primary);
+  padding: 10px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: var(--font-sans);
+}
+
+.netra-fab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.75), 0 0 20px var(--copper-glow);
+  border-color: var(--copper-highlight);
+}
+
+.netra-fab-icon {
+  color: var(--copper-highlight);
+  transition: transform 0.25s ease;
+}
+
+.netra-fab:hover .netra-fab-icon {
+  transform: scale(1.1);
+}
+
+.netra-fab-label {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #F5F5F4;
+}
+
+.netra-cursor {
+  color: var(--copper-highlight);
+  font-weight: 700;
+  animation: netraCursorBlink 1s infinite;
+}
+
+@keyframes netraCursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.netra-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4ADE80;
+  box-shadow: 0 0 8px #4ADE80;
+}
+
+/* Tactical Slide-Out Drawer */
+.netra-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 410px;
+  max-width: 92vw;
+  background: rgba(18, 16, 15, 0.98);
+  backdrop-filter: blur(18px);
+  border-left: 1px solid var(--border-subtle);
+  box-shadow: -8px 0 35px rgba(0, 0, 0, 0.75);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(105%);
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.netra-drawer.open {
+  transform: translateX(0);
+}
+
+/* Drawer Header */
+.netra-drawer-header {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-subtle);
+  background: #171413;
+}
+
+.netra-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.netra-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(212, 163, 115, 0.12);
+  border: 1px solid rgba(212, 163, 115, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.netra-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #F5F5F4;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.netra-badge {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  background: rgba(212, 163, 115, 0.15);
+  color: var(--copper-highlight);
+  border: 1px solid rgba(212, 163, 115, 0.35);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.netra-subtitle {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.netra-close-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.netra-close-btn:hover {
+  background: var(--bg-card);
+  color: #F5F5F4;
+  border-color: var(--border-strong);
+}
+
+/* Context Ribbon */
+.netra-context-bar {
+  padding: 8px 20px;
+  background: #12100F;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+}
+
+.netra-case-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--copper-highlight);
+  font-weight: 600;
+}
+
+.netra-case-chip .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #EF4444;
+}
+
+.netra-sync-chip {
+  color: var(--text-muted);
+}
+
+/* Suggested Queries Chips */
+.netra-chips-wrapper {
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: #171413;
+}
+
+.netra-chips-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.8px;
+  margin-bottom: 8px;
+}
+
+.netra-chips-scroll {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.netra-chip {
+  background: rgba(212, 163, 115, 0.08);
+  border: 1px solid rgba(212, 163, 115, 0.25);
+  color: var(--copper-highlight);
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: var(--font-sans);
+}
+
+.netra-chip:hover {
+  background: rgba(212, 163, 115, 0.18);
+  border-color: var(--copper-highlight);
+  color: #FFFFFF;
+}
+
+/* Chat Messages */
+.netra-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.netra-msg {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  animation: netraFadeIn 0.25s ease forwards;
+}
+
+@keyframes netraFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.netra-msg-user {
+  align-self: flex-end;
+  max-width: 85%;
+}
+
+.netra-msg-user .netra-msg-content {
+  background: rgba(192, 132, 87, 0.18);
+  border: 1px solid rgba(192, 132, 87, 0.35);
+  color: #F5F5F4;
+  border-radius: 10px 10px 2px 10px;
+  padding: 10px 14px;
+  font-size: 12.5px;
+}
+
+.netra-msg-bot {
+  align-self: flex-start;
+  max-width: 95%;
+}
+
+.netra-msg-sender {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--copper-highlight);
+  letter-spacing: 0.5px;
+}
+
+.netra-msg-bot .netra-msg-content {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  border-radius: 10px 10px 10px 2px;
+  padding: 14px 16px;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.netra-msg-content p {
+  margin: 0;
+}
+
+.netra-msg-content p + p {
+  margin-top: 8px;
+}
+
+.netra-evidence-block {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.35);
+  border-left: 3px solid var(--copper-primary);
+  border-radius: 0 4px 4px 0;
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+.netra-evidence-block.inference {
+  border-left-color: var(--amber-primary);
+}
+
+.netra-evidence-block.rec {
+  border-left-color: var(--moss-primary);
+}
+
+.netra-evidence-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.netra-entity-link {
+  color: var(--copper-highlight);
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.netra-entity-link:hover {
+  color: #FFFFFF;
+}
+
+/* Chat Input Bar */
+.netra-input-area {
+  padding: 14px 20px 16px;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.netra-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  padding: 4px 6px 4px 12px;
+  transition: border-color 0.2s ease;
+}
+
+.netra-input-wrapper:focus-within {
+  border-color: var(--copper-primary);
+  box-shadow: 0 0 10px var(--copper-subtle);
+}
+
+.netra-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #F5F5F4;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+}
+
+.netra-input::placeholder {
+  color: var(--text-muted);
+}
+
+.netra-send-btn {
+  background: var(--copper-primary);
+  color: #090807;
+  border: none;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.netra-send-btn:hover {
+  background: var(--copper-highlight);
+  transform: scale(1.05);
+}
+
+.netra-footer-hint {
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--text-muted);
+  text-align: center;
+}
+

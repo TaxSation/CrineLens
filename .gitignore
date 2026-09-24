@@ -3,3 +3,4 @@ __pycache__/
 .env
 scratch/
 .system_generated/
+*.zip
